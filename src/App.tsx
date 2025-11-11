@@ -1,16 +1,21 @@
-import { Button, Layout } from 'antd';
-const { Content } = Layout;
+// src/App.jsx
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import MainLayout from './layout/MainLayout';
+import Mozos from './pages/Mozos';
+import Jornadas from './pages/Jornadas';
+import Productos from './pages/Productos';
 
-function App() {
+export default function App() {
   return (
-    <Layout style={{ minHeight: '100vh', background: '#0D0C1D' }}>
-      <Content style={{ padding: 24 }}>
-        <Button type="primary">Botón principal</Button>
-        <Button>Clic común</Button>
-        {/* contenido de prueba */}
-      </Content>
-    </Layout>
+    <BrowserRouter>
+      <Routes>
+        <Route path="/" element={<MainLayout />}>
+          <Route index element={<Navigate to="/mozos" replace />} />
+          <Route path="mozos" element={<Mozos />} />
+          <Route path="jornadas" element={<Jornadas />} />
+          <Route path="productos" element={<Productos />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }
-
-export default App;
