@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.1.0",
+    "@supabase/supabase-js": "^2.81.1",
     "antd": "^5.28.0",
+    "axios": "^1.13.2",
     "eslint-plugin-import": "^2.32.0",
     "eslint-plugin-react": "^7.37.5",
     "react": "^19.1.1",

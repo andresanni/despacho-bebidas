@@ -1,6 +1,7 @@
 import { theme as antdTheme } from 'antd';
+import type { ThemeConfig } from 'antd/es/config-provider/context';
 
-export const themeConfig = {
+export const themeConfig: ThemeConfig = {
   algorithm: antdTheme.darkAlgorithm,
 
   token: {
