@@ -1,9 +1,10 @@
+import type { CreateEntity, UpdateEntity } from "./crud";
+
 // Enums que reflejan los tipos custom de Postgres
 export type EstadoJornada = 'ABIERTA' | 'CERRADA';
 export type EstadoOperacion = 'NO_ASIGNADA' | 'ABIERTA' | 'TICKET_IMPRESO' | 'PAGA';
 
-// ========== Tablas ==========
-
+// Tablas 
 export interface Jornada {
   idJornada: number; 
   fecha: string; 
@@ -52,3 +53,21 @@ export interface ItemOperacion {
   precioUnitario: number;
   subtotal: number;
 }
+
+// ========== Tipos CRUD derivados ==========
+
+// Jornada
+export type JornadaCreate = CreateEntity<Jornada, 'idJornada'>;
+export type JornadaUpdate = UpdateEntity<Jornada, 'idJornada'>;
+
+// Mozo
+export type MozoCreate = CreateEntity<Mozo, 'idMozo'>;
+export type MozoUpdate = UpdateEntity<Mozo, 'idMozo'>;
+
+// Mesa
+export type MesaCreate = CreateEntity<Mesa, 'idMesa'>;
+export type MesaUpdate = UpdateEntity<Mesa, 'idMesa'>;
+
+// Bebida
+export type BebidaCreate = CreateEntity<Bebida, 'idBebida'>;
+export type BebidaUpdate = UpdateEntity<Bebida, 'idBebida'>;

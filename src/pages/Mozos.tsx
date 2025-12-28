@@ -21,50 +21,7 @@ import {
 } from '@ant-design/icons';
 import type { ColumnsType } from 'antd/es/table';
 import type { Mozo } from '../types/models';
-
-// ------------------------------------------------------------------
-// [SERVICE LAYER]
-// ------------------------------------------------------------------
-let MOCK_ID = 3;
-let MOCK_DATA: Mozo[] = [
-  { idMozo: 1, nombre: 'Juan Pérez', activo: true },
-  { idMozo: 2, nombre: 'María Gómez', activo: false },
-];
-
-const mozoService = {
-  getAll: async (): Promise<Mozo[]> => {
-    return new Promise((resolve) => setTimeout(() => resolve([...MOCK_DATA]), 400));
-  },
-  create: async (mozo: Omit<Mozo, 'idMozo'>): Promise<Mozo> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const nuevo = { ...mozo, idMozo: ++MOCK_ID };
-        MOCK_DATA.push(nuevo);
-        resolve(nuevo);
-      }, 600);
-    });
-  },
-  update: async (id: number, mozo: Partial<Mozo>): Promise<Mozo> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        MOCK_DATA = MOCK_DATA.map(m => m.idMozo === id ? { ...m, ...mozo } : m);
-        resolve({ ...mozo, idMozo: id } as Mozo);
-      }, 600);
-    });
-  },
-  // CAMBIO: Ahora es un Soft Delete (Baja lógica)
-  softDelete: async (id: number): Promise<void> => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        // No borramos con .filter(), actualizamos el flag
-        MOCK_DATA = MOCK_DATA.map(m => 
-          m.idMozo === id ? { ...m, activo: false } : m
-        );
-        resolve();
-      }, 600);
-    });
-  }
-};
+import { mozoService } from '../services/mozoService';
 
 // ------------------------------------------------------------------
 // [COMPONENTE PRINCIPAL]
