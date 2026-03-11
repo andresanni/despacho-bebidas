@@ -13,8 +13,13 @@ export function useAppInit(): UseAppInitResult {
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
-  const { setMozos, setBebidas, setJornadaActual, setOperacionesActivas } =
-    useAppStore();
+  const {
+    setMozos,
+    setBebidas,
+    setJornadaActiva,
+    setJornadaSeleccionada,
+    setOperacionesActivas,
+  } = useAppStore();
 
   useEffect(() => {
     let isMounted = true;
@@ -44,7 +49,10 @@ export function useAppInit(): UseAppInitResult {
             throw jornadaResult.error;
           }
 
-          setJornadaActual(jornadaResult.data as Jornada | null);
+          setJornadaActiva(jornadaResult.data as Jornada | null);
+
+          // Por defecto, si hay una activa, que sea esa la que mires al entrar a /despacho
+          setJornadaSeleccionada(jornadaResult.data as Jornada | null);
 
           if (jornadaResult.data) {
             const { data: operacionesData, error: operacionesError } =
@@ -79,7 +87,13 @@ export function useAppInit(): UseAppInitResult {
     return () => {
       isMounted = false;
     };
-  }, [setMozos, setBebidas, setJornadaActual, setOperacionesActivas]);
+  }, [
+    setMozos,
+    setBebidas,
+    setJornadaActiva,
+    setJornadaSeleccionada,
+    setOperacionesActivas,
+  ]);
 
   return { loading, error };
 }

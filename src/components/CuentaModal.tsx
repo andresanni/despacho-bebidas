@@ -11,6 +11,7 @@ import {
   InputNumber,
   Tag,
   Select,
+  Popconfirm,
 } from "antd";
 import { DeleteOutlined } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
@@ -57,6 +58,10 @@ export function CuentaModal({
   const operacionActual = operacionesActivas.find(
     (op) => op.id === operacionId,
   );
+  const jornadaSeleccionada = useAppStore((state) => state.jornadaSeleccionada);
+  const isJornadaCerrada = jornadaSeleccionada?.estado === "cerrada";
+  const esModoMuseo = isJornadaCerrada;
+
   const estaPagada = operacionActual?.estado === "Pagada";
   const mozoAsignado =
     mozos.find((m) => m.id === operacionActual?.mozo_id)?.nombre || "Sin mozo";
@@ -253,16 +258,40 @@ export function CuentaModal({
     }
   };
 
+  const handleAnularMesa = async () => {
+    if (!operacionActual) return;
+    try {
+      // Reutilizamos la función de la guillotina
+      await eliminarOperacion(operacionActual.id);
+
+      // Actualizamos el estado global para sacarla del mapa
+      setOperacionesActivas(
+        operacionesActivas.filter((op) => op.id !== operacionActual.id),
+      );
+
+      message.success("Mesa anulada correctamente");
+      onClose();
+    } catch (error: any) {
+      console.error("Error al anular:", error);
+      message.error("No se pudo anular la mesa");
+    }
+  };
+
   const handleCobrar = async () => {
     if (!operacionActual) return;
     try {
       setCobrando(true);
-      await cobrarOperacion(operacionActual.id, metodoPago);
+      await cobrarOperacion(operacionActual.id, metodoPago, totalNeto);
 
       setOperacionesActivas(
         operacionesActivas.map((op) =>
           op.id === operacionActual.id
-            ? { ...op, estado: "Pagada", metodo_pago: metodoPago as any }
+            ? {
+                ...op,
+                estado: "Pagada",
+                metodo_pago: metodoPago as any,
+                total_neto: totalNeto,
+              }
             : op,
         ),
       );
@@ -314,51 +343,64 @@ export function CuentaModal({
       dataIndex: "cantidadEditable",
       key: "cantidad",
       width: 80,
-      render: (_: any, record: any) => (
-        <InputNumber
-          min={1}
-          value={record.cantidadEditable}
-          onChange={(val) => handleCantidadChange(record.id, val || 1)}
-        />
-      ),
+      render: (_: any, record: any) =>
+        esModoMuseo ? (
+          <Typography.Text>{record.cantidadEditable}</Typography.Text>
+        ) : (
+          <InputNumber
+            min={1}
+            value={record.cantidadEditable}
+            onChange={(val) => handleCantidadChange(record.id, val || 1)}
+          />
+        ),
     },
     {
       title: "Bonif. 100%",
       key: "cantidad_bonificada_100",
       width: 100,
-      render: (_: any, record: any) => (
-        <InputNumber
-          min={0}
-          value={bonificaciones[record.id]?.b100 || 0}
-          onChange={(val) =>
-            handleBonifChange(
-              record.id,
-              "b100",
-              val || 0,
-              record.cantidadEditable,
-            )
-          }
-        />
-      ),
+      render: (_: any, record: any) =>
+        esModoMuseo ? (
+          <Typography.Text>
+            {bonificaciones[record.id]?.b100 || 0}
+          </Typography.Text>
+        ) : (
+          <InputNumber
+            min={0}
+            value={bonificaciones[record.id]?.b100 || 0}
+            onChange={(val) =>
+              handleBonifChange(
+                record.id,
+                "b100",
+                val || 0,
+                record.cantidadEditable,
+              )
+            }
+          />
+        ),
     },
     {
       title: "Bonif. 50%",
       key: "cantidad_bonificada_50",
       width: 100,
-      render: (_: any, record: any) => (
-        <InputNumber
-          min={0}
-          value={bonificaciones[record.id]?.b50 || 0}
-          onChange={(val) =>
-            handleBonifChange(
-              record.id,
-              "b50",
-              val || 0,
-              record.cantidadEditable,
-            )
-          }
-        />
-      ),
+      render: (_: any, record: any) =>
+        esModoMuseo ? (
+          <Typography.Text>
+            {bonificaciones[record.id]?.b50 || 0}
+          </Typography.Text>
+        ) : (
+          <InputNumber
+            min={0}
+            value={bonificaciones[record.id]?.b50 || 0}
+            onChange={(val) =>
+              handleBonifChange(
+                record.id,
+                "b50",
+                val || 0,
+                record.cantidadEditable,
+              )
+            }
+          />
+        ),
     },
     {
       title: "P. Unit.",
@@ -387,6 +429,10 @@ export function CuentaModal({
     },
   ];
 
+  const columnasFinales = columns.filter(
+    (col) => !esModoMuseo || col.key !== "acciones",
+  );
+
   return (
     <Modal
       title={<Typography.Title level={4}>Detalle de Cuenta</Typography.Title>}
@@ -395,7 +441,11 @@ export function CuentaModal({
       width={800}
       footer={
         <Space>
-          {hayCambios ? (
+          {esModoMuseo ? (
+            <Button onClick={handlePrint} disabled={cobrando}>
+              Imprimir Ticket
+            </Button>
+          ) : hayCambios ? (
             <Button
               type="primary"
               style={{ backgroundColor: "#d97706", borderColor: "#d97706" }}
@@ -409,28 +459,42 @@ export function CuentaModal({
               <Button onClick={handlePrint} disabled={cobrando}>
                 Imprimir Ticket
               </Button>
-              {!estaPagada && (
-                <Space.Compact>
-                  <Select
-                    value={metodoPago}
-                    onChange={setMetodoPago}
-                    disabled={cobrando}
-                    style={{ width: "120px" }}
-                    options={[
-                      { value: "Efectivo", label: "Efectivo" },
-                      { value: "QR", label: "MercadoPago/QR" },
-                      { value: "Debito", label: "Débito" },
-                    ]}
-                  />
-                  <Button
-                    type="primary"
-                    danger
-                    loading={cobrando}
-                    onClick={handleCobrar}
+              {!estaPagada && !isJornadaCerrada && (
+                <>
+                  <Popconfirm
+                    title="¿Anular mesa?"
+                    description="Se eliminará la comanda completa. Esta acción no se puede deshacer."
+                    onConfirm={handleAnularMesa}
+                    okText="Sí, Anular"
+                    cancelText="Cancelar"
+                    okButtonProps={{ danger: true }}
                   >
-                    Cobrar y Cerrar
-                  </Button>
-                </Space.Compact>
+                    <Button danger disabled={cobrando}>
+                      Anular Mesa
+                    </Button>
+                  </Popconfirm>
+                  <Space.Compact>
+                    <Select
+                      value={metodoPago}
+                      onChange={setMetodoPago}
+                      disabled={cobrando}
+                      style={{ width: "120px" }}
+                      options={[
+                        { value: "Efectivo", label: "Efectivo" },
+                        { value: "QR", label: "MercadoPago/QR" },
+                        { value: "Debito", label: "Débito" },
+                      ]}
+                    />
+                    <Button
+                      type="primary"
+                      danger
+                      loading={cobrando}
+                      onClick={handleCobrar}
+                    >
+                      Cobrar y Cerrar
+                    </Button>
+                  </Space.Compact>
+                </>
               )}
             </>
           )}
@@ -447,11 +511,15 @@ export function CuentaModal({
             {operacionActual && (
               <Space>
                 <Typography.Text>Personas:</Typography.Text>
-                <InputNumber
-                  min={1}
-                  value={personasEditables}
-                  onChange={handlePersonasChange}
-                />
+                {esModoMuseo ? (
+                  <Typography.Text strong>{personasEditables}</Typography.Text>
+                ) : (
+                  <InputNumber
+                    min={1}
+                    value={personasEditables}
+                    onChange={handlePersonasChange}
+                  />
+                )}
               </Space>
             )}
             <Tag color="blue" style={{ fontSize: "14px", padding: "4px 8px" }}>
@@ -460,7 +528,7 @@ export function CuentaModal({
           </Space>
 
           <Table
-            columns={columns}
+            columns={columnasFinales}
             dataSource={dataSource}
             pagination={false}
             size="small"

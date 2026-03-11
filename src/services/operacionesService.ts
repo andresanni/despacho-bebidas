@@ -166,12 +166,14 @@ export async function guardarCambiosCuenta(
 export async function cobrarOperacion(
   operacionId: string,
   metodoPago: string,
+  totalNeto: number,
 ): Promise<void> {
   const { error } = await supabase
     .from("operaciones")
     .update({
       estado: "Pagada",
       metodo_pago: metodoPago,
+      total_neto: totalNeto,
     })
     .eq("id", operacionId);
   if (error) throw error;

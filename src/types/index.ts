@@ -12,14 +12,14 @@ export interface Jornada {
 export interface Mozo {
   id: string; // uuid
   nombre: string;
-  activo: boolean; // default true
+  activo?: boolean; // default true
 }
 
 export interface Bebida {
   id: string; // uuid
   nombre: string;
   precio_actual: number; // numeric(10, 2)
-  activa: boolean; // default true
+  activo?: boolean; // default true
 }
 
 export interface Operacion {
@@ -30,6 +30,7 @@ export interface Operacion {
   cantidad_personas: number | null;
   estado: EstadoOperacion; // default 'Abierta'
   metodo_pago: MetodoPago;
+  total_neto?: number;
   creado_en: string; // timestamptz
 }
 

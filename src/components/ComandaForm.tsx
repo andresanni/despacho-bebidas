@@ -20,24 +20,30 @@ export function ComandaForm() {
   const [form] = Form.useForm();
   const mozos = useAppStore((state) => state.mozos);
   const bebidas = useAppStore((state) => state.bebidas);
-  const jornadaActual = useAppStore((state) => state.jornadaActual);
+  const jornadaSeleccionada = useAppStore((state) => state.jornadaSeleccionada);
   const operacionesActivas = useAppStore((state) => state.operacionesActivas);
   const setOperacionesActivas = useAppStore(
     (state) => state.setOperacionesActivas,
   );
 
+  // Solo mostrar bebidas activas en el selector de la comanda
+  const bebidasActivas = bebidas.filter((b) => b.activo !== false);
+  const mozosActivos = mozos.filter((m) => m.activo !== false);
+
+  const esModoMuseo = jornadaSeleccionada?.estado === "cerrada";
+
   const [enviando, setEnviando] = useState(false);
 
   const onFinish = async (values: any) => {
-    if (!jornadaActual) {
-      message.error("No hay una jornada abierta actual.");
+    if (!jornadaSeleccionada) {
+      message.error("No hay una jornada seleccionada.");
       return;
     }
 
     try {
       setEnviando(true);
       const operacionGuardada = await registrarComanda(
-        jornadaActual.id,
+        jornadaSeleccionada.id,
         values,
         bebidas,
       );
@@ -83,6 +89,27 @@ export function ComandaForm() {
       }
     }
   };
+
+  if (esModoMuseo) {
+    return (
+      <div
+        style={{
+          padding: "2rem",
+          textAlign: "center",
+          backgroundColor: "#1a1a1a",
+          borderRadius: "8px",
+          border: "1px dashed #444",
+        }}
+      >
+        <Typography.Title level={4} style={{ color: "#888" }}>
+          Modo Histórico
+        </Typography.Title>
+        <Typography.Text type="secondary">
+          Esta jornada está cerrada. No se pueden agregar nuevas comandas.
+        </Typography.Text>
+      </div>
+    );
+  }
 
   return (
     <Card
@@ -132,7 +159,7 @@ export function ComandaForm() {
           rules={[{ required: true, message: "Por favor seleccione un mozo" }]}
         >
           <Select placeholder="Seleccionar mozo">
-            {mozos.map((mozo) => (
+            {mozosActivos.map((mozo) => (
               <Select.Option key={mozo.id} value={mozo.id}>
                 {mozo.nombre}
               </Select.Option>
@@ -164,7 +191,7 @@ export function ComandaForm() {
                     style={{ width: 220, marginBottom: 0 }}
                   >
                     <Select placeholder="Bebida">
-                      {bebidas.map((bebida) => (
+                      {bebidasActivas.map((bebida) => (
                         <Select.Option key={bebida.id} value={bebida.id}>
                           {bebida.nombre}
                         </Select.Option>
