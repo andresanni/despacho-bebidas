@@ -139,7 +139,7 @@ export function MapaMesas() {
                 </Typography.Text>
                 
                 {/* Visualización en Vivo del Subtotal de la Mesa */}
-                <div style={{ marginTop: '0.75rem' }}>
+                <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
                   {op.items_operacion && op.items_operacion.length > 0 ? (
                     (() => {
                       const totalVivo = op.items_operacion.reduce((acc: number, item: any) => {
@@ -148,7 +148,7 @@ export function MapaMesas() {
                       }, 0);
                       
                       if (totalVivo > 0) {
-                        return <Typography.Title level={4} style={{ margin: 0, color: '#13c2c2' }}>$ {totalVivo.toFixed(2)}</Typography.Title>;
+                        return <Typography.Title level={4} style={{ margin: 0, color: '#13c2c2' }}>$ {totalVivo.toLocaleString('es-AR')}</Typography.Title>;
                       } else {
                         return <Tag color="success">🎁 Bonificada ($0)</Tag>;
                       }
