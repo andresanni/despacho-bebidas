@@ -32,6 +32,7 @@ export interface Operacion {
   metodo_pago: MetodoPago;
   total_neto?: number;
   creado_en: string; // timestamptz
+  items_operacion?: ItemOperacion[];
 }
 
 export interface ItemOperacion {

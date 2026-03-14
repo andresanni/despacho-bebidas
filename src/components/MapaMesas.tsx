@@ -101,7 +101,7 @@ export function MapaMesas() {
       ) : (
         <Row gutter={[16, 16]}>
           {mesasFiltradas.map((op) => (
-            <Col xs={24} sm={12} md={12} xl={8} key={op.id}>
+            <Col xs={24} sm={12} md={8} lg={6} xl={6} key={op.id}>
               <Card
                 title={
                   <Space>
@@ -137,6 +137,26 @@ export function MapaMesas() {
                 <Typography.Text type="secondary">
                   Mozo: {getMozoNombre(op.mozo_id)}
                 </Typography.Text>
+                
+                {/* Visualización en Vivo del Subtotal de la Mesa */}
+                <div style={{ marginTop: '0.75rem' }}>
+                  {op.items_operacion && op.items_operacion.length > 0 ? (
+                    (() => {
+                      const totalVivo = op.items_operacion.reduce((acc: number, item: any) => {
+                        const cantCobrar = item.cantidad - item.cantidad_bonificada_100 - (item.cantidad_bonificada_50 * 0.5);
+                        return acc + (cantCobrar * item.precio_unitario);
+                      }, 0);
+                      
+                      if (totalVivo > 0) {
+                        return <Typography.Title level={4} style={{ margin: 0, color: '#13c2c2' }}>$ {totalVivo.toFixed(2)}</Typography.Title>;
+                      } else {
+                        return <Tag color="success">🎁 Bonificada ($0)</Tag>;
+                      }
+                    })()
+                  ) : (
+                    <Typography.Text italic type="secondary">Mesa Vacía</Typography.Text>
+                  )}
+                </div>
 
                 <Button
                   type={op.estado === "Pagada" ? "default" : "primary"}

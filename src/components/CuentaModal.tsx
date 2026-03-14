@@ -21,8 +21,10 @@ import {
   guardarCambiosCuenta,
   cobrarOperacion,
   eliminarOperacion,
+  getOperacionesConItems,
 } from "../services/operacionesService";
 import { TicketImpresion } from "./TicketImpresion";
+import { TicketA4 } from "./TicketA4";
 
 interface CuentaModalProps {
   operacionId: string | null;
@@ -45,6 +47,7 @@ export function CuentaModal({
   const [guardando, setGuardando] = useState(false);
   const [idsAEliminar, setIdsAEliminar] = useState<string[]>([]);
   const [personasEditables, setPersonasEditables] = useState<number>(0);
+  const [mozoEditado, setMozoEditado] = useState<string | undefined>(undefined);
   const [metodoPago, setMetodoPago] = useState<string>("Efectivo");
   const [cobrando, setCobrando] = useState(false);
 
@@ -69,7 +72,13 @@ export function CuentaModal({
   const componentRef = useRef<HTMLDivElement>(null);
   const handlePrint = useReactToPrint({
     contentRef: componentRef,
-    documentTitle: `Ticket_Mesa_${operacionActual?.numero_mesa || "x"}`,
+    documentTitle: `Ticket_Comandera_${operacionActual?.numero_mesa || "x"}`,
+  });
+
+  const ticketA4Ref = useRef<HTMLDivElement>(null);
+  const handlePrintA4 = useReactToPrint({
+    contentRef: ticketA4Ref,
+    documentTitle: `Ticket_A4_${operacionActual?.numero_mesa || "x"}`,
   });
 
   useEffect(() => {
@@ -103,6 +112,7 @@ export function CuentaModal({
               });
               setBonificaciones(inicial);
               setPersonasEditables(operacionActual?.cantidad_personas || 0);
+              setMozoEditado(operacionActual?.mozo_id || undefined);
               setMetodoPago("Efectivo");
               setHayCambios(false);
               setIdsAEliminar([]);
@@ -127,6 +137,7 @@ export function CuentaModal({
       setItems([]);
       setBonificaciones({});
       setPersonasEditables(0);
+      setMozoEditado(undefined);
       setMetodoPago("Efectivo");
       setHayCambios(false);
       setIdsAEliminar([]);
@@ -209,7 +220,7 @@ export function CuentaModal({
     });
   };
 
-  const handleGuardarCambios = async () => {
+  const ejecutarGuardado = async () => {
     try {
       setGuardando(true);
 
@@ -234,18 +245,44 @@ export function CuentaModal({
         cantidad_bonificada_50: bonificaciones[item.id]?.b50 || 0,
       }));
 
-      if (
-        operacionActual &&
-        personasEditables !== operacionActual.cantidad_personas
-      ) {
-        const { error: opError } = await supabase
-          .from("operaciones")
-          .update({ cantidad_personas: personasEditables })
-          .eq("id", operacionActual.id);
-        if (opError) throw opError;
+      if (operacionActual) {
+        const payload: any = {};
+        let updateOp = false;
+
+        if (personasEditables !== operacionActual.cantidad_personas) {
+          payload.cantidad_personas = personasEditables;
+          updateOp = true;
+        }
+
+        if (mozoEditado && mozoEditado !== operacionActual.mozo_id) {
+          payload.mozo_id = mozoEditado;
+          updateOp = true;
+        }
+
+        if (updateOp) {
+          const { error: opError } = await supabase
+            .from("operaciones")
+            .update(payload)
+            .eq("id", operacionActual.id);
+          if (opError) throw opError;
+
+          // 2. LA CLAVE DE LA REACTIVIDAD: Actualizar el estado global
+          setOperacionesActivas(
+            operacionesActivas.map((op) =>
+              op.id === operacionActual.id
+                ? { ...op, ...payload }
+                : op
+            )
+          );
+        }
       }
 
       await guardarCambiosCuenta(itemsAActualizar, idsAEliminar);
+
+      if (jornadaSeleccionada) {
+        const dataRefrescada = await getOperacionesConItems(jornadaSeleccionada.id);
+        setOperacionesActivas(dataRefrescada as any);
+      }
 
       message.success("Cambios guardados correctamente");
       setHayCambios(false);
@@ -255,6 +292,23 @@ export function CuentaModal({
       message.error(error.message || "Error al guardar los cambios");
     } finally {
       setGuardando(false);
+    }
+  };
+
+  const handleGuardarCambios = () => {
+    if (operacionActual && mozoEditado && mozoEditado !== operacionActual.mozo_id) {
+      const mozoViejo = mozos.find((m) => m.id === operacionActual.mozo_id)?.nombre || "Sin mozo";
+      const mozoNuevo = mozos.find((m) => m.id === mozoEditado)?.nombre || "Sin mozo";
+
+      Modal.confirm({
+        title: "¿Transferir Mesa?",
+        content: `¿Confirmas que quieres pasar esta mesa de ${mozoViejo} a ${mozoNuevo}?`,
+        okText: "Sí, transferir",
+        cancelText: "Cancelar",
+        onOk: ejecutarGuardado,
+      });
+    } else {
+      ejecutarGuardado();
     }
   };
 
@@ -442,9 +496,14 @@ export function CuentaModal({
       footer={
         <Space>
           {esModoMuseo ? (
-            <Button onClick={handlePrint} disabled={cobrando}>
-              Imprimir Ticket
-            </Button>
+            <>
+              <Button onClick={handlePrint} disabled={cobrando}>
+                Imprimir Comandera
+              </Button>
+              <Button onClick={handlePrintA4} disabled={cobrando}>
+                Imprimir (Láser A4)
+              </Button>
+            </>
           ) : hayCambios ? (
             <Button
               type="primary"
@@ -457,7 +516,10 @@ export function CuentaModal({
           ) : (
             <>
               <Button onClick={handlePrint} disabled={cobrando}>
-                Imprimir Ticket
+                Imprimir Comandera
+              </Button>
+              <Button onClick={handlePrintA4} disabled={cobrando} style={{ marginRight: '8px' }}>
+                Imprimir (Láser A4)
               </Button>
               {!estaPagada && !isJornadaCerrada && (
                 <>
@@ -522,6 +584,25 @@ export function CuentaModal({
                 )}
               </Space>
             )}
+            {operacionActual && !esModoMuseo && (
+              <Space>
+                <Typography.Text>Mozo:</Typography.Text>
+                <Select
+                  value={mozoEditado}
+                  onChange={(val) => {
+                    setMozoEditado(val);
+                    setHayCambios(true);
+                  }}
+                  style={{ width: 150 }}
+                  options={mozos
+                    .filter((m) => m.activo !== false)
+                    .map((m) => ({
+                      value: m.id,
+                      label: m.nombre,
+                    }))}
+                />
+              </Space>
+            )}
             <Tag color="blue" style={{ fontSize: "14px", padding: "4px 8px" }}>
               Bonificaciones Restantes: {creditosRestantes / 2}
             </Tag>
@@ -543,6 +624,15 @@ export function CuentaModal({
       {/* Componente Oculto para Impresión */}
       <TicketImpresion
         ref={componentRef}
+        operacion={operacionActual}
+        mozoNombre={mozoAsignado}
+        itemsCalculados={dataSource}
+        totalBruto={totalBruto}
+        totalDescuentos={totalDescuentos}
+        totalNeto={totalNeto}
+      />
+      <TicketA4
+        ref={ticketA4Ref}
         operacion={operacionActual}
         mozoNombre={mozoAsignado}
         itemsCalculados={dataSource}

@@ -5,7 +5,7 @@ import { useAppStore } from "../store/useAppStore";
 import { ComandaForm } from "../components/ComandaForm";
 import { MapaMesas } from "../components/MapaMesas";
 import { ArqueoDrawer } from "../components/ArqueoDrawer";
-import { supabase } from "../lib/supabase";
+import { getOperacionesConItems } from "../services/operacionesService";
 
 const { Title } = Typography;
 
@@ -22,14 +22,10 @@ export function DespachoView() {
     const fetchOperacionesHistoricas = async () => {
       if (!jornadaSeleccionada) return;
       try {
-        const { data, error } = await supabase
-          .from("operaciones")
-          .select("*")
-          .eq("jornada_id", jornadaSeleccionada.id);
-        if (error) throw error;
+        const data = await getOperacionesConItems(jornadaSeleccionada.id);
         if (isMounted && data) {
           // Reutilizamos el estado global para llenar el Mapa de Mesas con la foto histórica
-          setOperacionesActivas(data);
+          setOperacionesActivas(data as any);
         }
       } catch (error) {
         console.error("Error al cargar operaciones de la jornada:", error);
@@ -76,7 +72,7 @@ export function DespachoView() {
     >
       {/* Mitad Izquierda: Comandas */}
       <Col
-        span={12}
+        span={8}
         style={{
           height: "100%",
           overflowY: "auto",
@@ -85,6 +81,7 @@ export function DespachoView() {
           flexDirection: "column",
           justifyContent: "flex-start",
           borderRight: "1px solid #303030",
+          maxWidth: "450px",
         }}
       >
         <ComandaForm />
@@ -92,7 +89,7 @@ export function DespachoView() {
 
       {/* Mitad Derecha: Mapa de Mesas */}
       <Col
-        span={12}
+        span={16}
         style={{
           height: "100%",
           display: "flex",

@@ -1,6 +1,17 @@
 import { supabase } from "../lib/supabase";
 import type { Bebida, ItemOperacion, Operacion } from "../types";
 
+export async function getOperacionesConItems(jornadaId: string) {
+  const { data, error } = await supabase
+    .from("operaciones")
+    .select("*, items_operacion(*)")
+    .eq("jornada_id", jornadaId)
+    .order("numero_mesa", { ascending: true });
+
+  if (error) throw error;
+  return data;
+}
+
 export async function registrarComanda(
   jornadaId: string,
   valoresFormulario: any,

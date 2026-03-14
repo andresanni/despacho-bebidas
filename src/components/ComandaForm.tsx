@@ -12,7 +12,10 @@ import {
 } from "antd";
 import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
-import { registrarComanda } from "../services/operacionesService";
+import {
+  registrarComanda,
+  getOperacionesConItems,
+} from "../services/operacionesService";
 
 const { Title, Text } = Typography;
 
@@ -32,6 +35,11 @@ export function ComandaForm() {
 
   const esModoMuseo = jornadaSeleccionada?.estado === "cerrada";
 
+  const mesaSeleccionada = Form.useWatch("numero_mesa", form);
+  const esMesaExistente = !!operacionesActivas.find(
+    (op) => op.numero_mesa === mesaSeleccionada && op.estado === "Abierta",
+  );
+
   const [enviando, setEnviando] = useState(false);
 
   const onFinish = async (values: any) => {
@@ -42,22 +50,18 @@ export function ComandaForm() {
 
     try {
       setEnviando(true);
-      const operacionGuardada = await registrarComanda(
+      await registrarComanda(
         jornadaSeleccionada.id,
         values,
         bebidas,
       );
 
-      const operacionExistenteIdx = operacionesActivas.findIndex(
-        (op) => op.id === operacionGuardada.id,
-      );
-
-      if (operacionExistenteIdx >= 0) {
-        const nuevasOperaciones = [...operacionesActivas];
-        nuevasOperaciones[operacionExistenteIdx] = operacionGuardada;
-        setOperacionesActivas(nuevasOperaciones);
-      } else {
-        setOperacionesActivas([...operacionesActivas, operacionGuardada]);
+      // Sincronización Reactiva de Todo el Mapa
+      if (jornadaSeleccionada) {
+        const dataRefrescada = await getOperacionesConItems(
+          jornadaSeleccionada.id,
+        );
+        setOperacionesActivas(dataRefrescada as any);
       }
 
       message.success("Comanda registrada");
@@ -73,7 +77,7 @@ export function ComandaForm() {
   const handleValuesChange = (changedValues: any) => {
     if (changedValues.numero_mesa !== undefined) {
       const mesaExistente = operacionesActivas.find(
-        (op) => op.numero_mesa === changedValues.numero_mesa,
+        (op) => op.numero_mesa === changedValues.numero_mesa && op.estado === "Abierta",
       );
 
       if (mesaExistente) {
@@ -84,7 +88,7 @@ export function ComandaForm() {
       } else {
         form.setFieldsValue({
           mozo_id: undefined,
-          cantidad_personas: undefined,
+          cantidad_personas: 1,
         });
       }
     }
@@ -158,7 +162,7 @@ export function ComandaForm() {
           name="mozo_id"
           rules={[{ required: true, message: "Por favor seleccione un mozo" }]}
         >
-          <Select placeholder="Seleccionar mozo">
+          <Select placeholder="Seleccionar mozo" disabled={esMesaExistente}>
             {mozosActivos.map((mozo) => (
               <Select.Option key={mozo.id} value={mozo.id}>
                 {mozo.nombre}
@@ -168,7 +172,18 @@ export function ComandaForm() {
         </Form.Item>
 
         <Form.Item label="Cantidad de Personas" name="cantidad_personas">
-          <InputNumber min={1} style={{ width: "100%" }} placeholder="Ej: 4" />
+          <Select
+            showSearch
+            placeholder="Ej: 4"
+            disabled={esMesaExistente}
+            options={Array.from({ length: 100 }, (_, i) => ({
+              value: i + 1,
+              label: `${i + 1}`,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
         </Form.Item>
 
         <Divider>

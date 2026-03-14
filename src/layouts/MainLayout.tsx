@@ -45,7 +45,7 @@ export function MainLayout() {
     {
       key: "/",
       icon: <HistoryOutlined />,
-      label: "Historial de Ventas",
+      label: "Jornadas",
     },
     {
       key: "/despacho",
