@@ -54,7 +54,7 @@ export function MapaMesas() {
         width: "100%",
         overflowY: "auto",
         overflowX: "hidden",
-        paddingRight: "12px",
+        paddingRight: "2rem",
         paddingBottom: "16px",
         scrollbarGutter: "stable",
       }}

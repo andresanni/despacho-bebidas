@@ -75,13 +75,11 @@ export function DespachoView() {
         span={8}
         style={{
           height: "100%",
-          overflowY: "auto",
-          padding: "2rem",
+          padding: "2rem 0 2rem 1.5rem",
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
           borderRight: "1px solid #303030",
-          maxWidth: "450px",
         }}
       >
         <ComandaForm />
@@ -94,7 +92,7 @@ export function DespachoView() {
           height: "100%",
           display: "flex",
           flexDirection: "column",
-          padding: "2rem",
+          padding: "2rem 0 2rem 2rem",
           backgroundColor: "#1a1a1a",
           overflow: "hidden",
         }}

@@ -4,7 +4,6 @@ import {
   InputNumber,
   Select,
   Button,
-  Space,
   Typography,
   Divider,
   Card,
@@ -119,16 +118,24 @@ export function ComandaForm() {
     <Card
       style={{
         width: "100%",
-        maxWidth: 600,
-        margin: "0 auto",
-        backgroundColor: "#1f1f1f",
-        borderColor: "#303030",
+        height: "100%",
+        backgroundColor: "transparent",
+        border: "none",
+        display: "flex",
+        flexDirection: "column",
+        overflowX: "hidden",
       }}
+      styles={{ body: { padding: 0, display: "flex", flexDirection: "column", height: "100%" } }}
     >
-      <Title level={4} style={{ textAlign: "center", marginBottom: "2rem" }}>
-        Nueva Comanda
-      </Title>
+      {/* Cabezal fijo */}
+      <div style={{ paddingRight: "1.5rem" }}>
+        <Title level={4} style={{ textAlign: "left", marginTop: 0, marginBottom: "1.5rem" }}>
+          Nueva Comanda
+        </Title>
+      </div>
 
+      {/* Contenedor del formulario scrolleable */}
+      <div style={{ flex: 1, overflowY: "auto", paddingRight: "1.5rem" }}>
       <Form
         form={form}
         layout="vertical"
@@ -143,8 +150,10 @@ export function ComandaForm() {
           rules={[
             { required: true, message: "Por favor ingrese el número de mesa" },
           ]}
+          style={{ marginBottom: "1.5rem" }}
         >
           <Select
+            size="large"
             showSearch
             placeholder="Ej: 12"
             options={Array.from({ length: 100 }, (_, i) => ({
@@ -161,8 +170,19 @@ export function ComandaForm() {
           label="Mozo"
           name="mozo_id"
           rules={[{ required: true, message: "Por favor seleccione un mozo" }]}
+          style={{ marginBottom: "1.5rem" }}
         >
-          <Select placeholder="Seleccionar mozo" disabled={esMesaExistente}>
+          <Select
+            showSearch
+            size="large"
+            placeholder="Seleccionar mozo"
+            disabled={esMesaExistente}
+            filterOption={(input, option) =>
+              (option?.children as unknown as string ?? "")
+                .toLowerCase()
+                .includes(input.toLowerCase())
+            }
+          >
             {mozosActivos.map((mozo) => (
               <Select.Option key={mozo.id} value={mozo.id}>
                 {mozo.nombre}
@@ -171,8 +191,9 @@ export function ComandaForm() {
           </Select>
         </Form.Item>
 
-        <Form.Item label="Cantidad de Personas" name="cantidad_personas">
+        <Form.Item label="Cantidad de Personas" name="cantidad_personas" style={{ marginBottom: "1.5rem" }}>
           <Select
+            size="large"
             showSearch
             placeholder="Ej: 4"
             disabled={esMesaExistente}
@@ -194,18 +215,27 @@ export function ComandaForm() {
           {(fields, { add, remove }) => (
             <>
               {fields.map(({ key, name, ...restField }, index) => (
-                <Space
+                <div
                   key={key}
-                  style={{ display: "flex", marginBottom: 8 }}
-                  align="baseline"
+                  style={{ display: "flex", width: "100%", gap: "8px", marginBottom: 8, alignItems: "center" }}
                 >
                   <Form.Item
                     {...restField}
                     name={[name, "bebida_id"]}
                     rules={[{ required: true, message: "Seleccione bebida" }]}
-                    style={{ width: 220, marginBottom: 0 }}
+                    style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
                   >
-                    <Select placeholder="Bebida">
+                    <Select
+                      showSearch
+                      style={{ width: "100%" }}
+                      popupMatchSelectWidth={false}
+                      placeholder="Bebida"
+                      filterOption={(input, option) =>
+                        (option?.children as unknown as string ?? "")
+                          .toLowerCase()
+                          .includes(input.toLowerCase())
+                      }
+                    >
                       {bebidasActivas.map((bebida) => (
                         <Select.Option key={bebida.id} value={bebida.id}>
                           {bebida.nombre}
@@ -219,7 +249,7 @@ export function ComandaForm() {
                     name={[name, "cantidad"]}
                     rules={[{ required: true, message: "Falta cantidad" }]}
                     initialValue={1}
-                    style={{ width: 80, marginBottom: 0 }}
+                    style={{ width: "55px", marginBottom: 0 }}
                   >
                     <InputNumber min={1} style={{ width: "100%" }} />
                   </Form.Item>
@@ -230,8 +260,9 @@ export function ComandaForm() {
                     icon={<MinusCircleOutlined />}
                     onClick={() => remove(name)}
                     disabled={fields.length === 1 && index === 0}
+                    style={{ padding: "0 4px", minWidth: 0 }}
                   />
-                </Space>
+                </div>
               ))}
 
               <Form.Item style={{ marginTop: "1rem" }}>
@@ -239,6 +270,7 @@ export function ComandaForm() {
                   type="dashed"
                   onClick={() => add()}
                   block
+                  size="large"
                   icon={<PlusOutlined />}
                 >
                   Agregar Bebida
@@ -254,11 +286,18 @@ export function ComandaForm() {
           size="large"
           block
           loading={enviando}
-          style={{ marginTop: "1rem", fontWeight: "bold" }}
+          style={{
+            height: "50px",
+            fontSize: "1.1rem",
+            marginTop: "1rem",
+            width: "100%",
+            fontWeight: "bold",
+          }}
         >
           Registrar Comanda
         </Button>
       </Form>
+      </div>
     </Card>
   );
 }
