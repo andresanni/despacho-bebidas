@@ -6,6 +6,7 @@ export interface Jornada {
   id: string; // uuid
   fecha: string; // date (YYYY-MM-DD)
   estado: EstadoJornada; // default 'abierta'
+  url_caja_sheets?: string | null;
   creado_en: string; // timestamptz
 }
 

@@ -210,10 +210,35 @@ export async function eliminarOperacion(operacionId: string): Promise<void> {
     .delete()
     .eq("operacion_id", operacionId);
 
-  // Luego eliminamos la operación
   const { error } = await supabase
     .from("operaciones")
     .delete()
     .eq("id", operacionId);
   if (error) throw error;
+}
+
+export async function sincronizarPersonasMesa(
+  operacionId: string,
+  nuevasPersonas: number,
+): Promise<void> {
+  // Primero actualizamos las personas en la operación padre
+  const { error: opError } = await supabase
+    .from("operaciones")
+    .update({
+      cantidad_personas: nuevasPersonas,
+    })
+    .eq("id", operacionId);
+
+  if (opError) throw opError;
+
+  // Luego reseteamos las bonificaciones de todos los ítems de esa mesa por seguridad
+  const { error: itemsError } = await supabase
+    .from("items_operacion")
+    .update({
+      cantidad_bonificada_100: 0,
+      cantidad_bonificada_50: 0,
+    })
+    .eq("operacion_id", operacionId);
+
+  if (itemsError) throw itemsError;
 }

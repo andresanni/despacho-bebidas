@@ -24,3 +24,11 @@ export async function cerrarJornadaSegura(jornadaId: string): Promise<void> {
 
   if (updateError) throw updateError;
 }
+
+export async function actualizarUrlCaja(jornadaId: string, url: string | null): Promise<void> {
+  const { error } = await supabase
+    .from("jornadas")
+    .update({ url_caja_sheets: url })
+    .eq("id", jornadaId);
+  if (error) throw error;
+}

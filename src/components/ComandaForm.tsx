@@ -40,6 +40,7 @@ export function ComandaForm() {
   );
 
   const [enviando, setEnviando] = useState(false);
+  const mesasCaja = useAppStore((state) => state.mesasCaja);
 
   const onFinish = async (values: any) => {
     if (!jornadaSeleccionada) {
@@ -85,9 +86,12 @@ export function ComandaForm() {
           cantidad_personas: mesaExistente.cantidad_personas,
         });
       } else {
+        // Es una mesa virgen en el sistema. Buscamos en el staging de CAJA.
+        const mesaDesdeCaja = mesasCaja.find((m) => m.mesa === changedValues.numero_mesa);
+        
         form.setFieldsValue({
           mozo_id: undefined,
-          cantidad_personas: 1,
+          cantidad_personas: mesaDesdeCaja ? mesaDesdeCaja.personas : 1,
         });
       }
     }
