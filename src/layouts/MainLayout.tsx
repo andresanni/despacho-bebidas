@@ -69,7 +69,7 @@ export function MainLayout() {
       <Sider width={200} style={{ background: "#141414" }}>
         <div style={{ padding: "1rem", textAlign: "center" }}>
           <Title level={4} style={{ color: "#d97706", margin: 0 }}>
-            Despacho App
+            Maria Gracia Bebidas
           </Title>
         </div>
         <Menu

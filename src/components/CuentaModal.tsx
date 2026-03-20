@@ -22,6 +22,7 @@ import {
   cobrarOperacion,
   eliminarOperacion,
   getOperacionesConItems,
+  anularPagoYReabrir,
 } from "../services/operacionesService";
 import { TicketImpresion } from "./TicketImpresion";
 import { TicketA4 } from "./TicketA4";
@@ -66,6 +67,7 @@ export function CuentaModal({
   const esModoMuseo = isJornadaCerrada;
 
   const estaPagada = operacionActual?.estado === "Pagada";
+  const esSoloLectura = esModoMuseo || estaPagada;
   const mozoAsignado =
     mozos.find((m) => m.id === operacionActual?.mozo_id)?.nombre || "Sin mozo";
 
@@ -398,7 +400,7 @@ export function CuentaModal({
       key: "cantidad",
       width: 80,
       render: (_: any, record: any) =>
-        esModoMuseo ? (
+        esSoloLectura ? (
           <Typography.Text>{record.cantidadEditable}</Typography.Text>
         ) : (
           <InputNumber
@@ -413,7 +415,7 @@ export function CuentaModal({
       key: "cantidad_bonificada_100",
       width: 100,
       render: (_: any, record: any) =>
-        esModoMuseo ? (
+        esSoloLectura ? (
           <Typography.Text>
             {bonificaciones[record.id]?.b100 || 0}
           </Typography.Text>
@@ -437,7 +439,7 @@ export function CuentaModal({
       key: "cantidad_bonificada_50",
       width: 100,
       render: (_: any, record: any) =>
-        esModoMuseo ? (
+        esSoloLectura ? (
           <Typography.Text>
             {bonificaciones[record.id]?.b50 || 0}
           </Typography.Text>
@@ -476,6 +478,7 @@ export function CuentaModal({
         <Button
           type="text"
           danger
+          disabled={esSoloLectura}
           icon={<DeleteOutlined />}
           onClick={() => handleEliminarItem(record.id)}
         />
@@ -484,8 +487,31 @@ export function CuentaModal({
   ];
 
   const columnasFinales = columns.filter(
-    (col) => !esModoMuseo || col.key !== "acciones",
+    (col) => !esSoloLectura || col.key !== "acciones",
   );
+
+  const handleReabrirCuenta = () => {
+    Modal.confirm({
+      title: '¿Anular Pago y Reabrir Mesa?',
+      content: 'Esto eliminará el registro del cobro de la caja y la mesa volverá a aparecer como pendiente de pago. ¿Estás seguro?',
+      okText: 'Sí, Reabrir',
+      okType: 'danger',
+      cancelText: 'Cancelar',
+      onOk: async () => {
+        if (!operacionActual || !jornadaSeleccionada) return;
+        try {
+          await anularPagoYReabrir(operacionActual.id);
+          // Re-fetch para reactividad global
+          const dataRefrescada = await getOperacionesConItems(jornadaSeleccionada.id);
+          setOperacionesActivas(dataRefrescada as any);
+          message.success('Pago anulado. Mesa reabierta.');
+          onClose(); // Cerramos el modal
+        } catch (error: any) {
+          message.error('Error al reabrir la mesa: ' + error.message);
+        }
+      }
+    });
+  };
 
   return (
     <Modal
@@ -495,8 +521,13 @@ export function CuentaModal({
       width={800}
       footer={
         <Space>
-          {esModoMuseo ? (
+          {esSoloLectura ? (
             <>
+              {estaPagada && !isJornadaCerrada && (
+                <Button danger type="dashed" onClick={handleReabrirCuenta}>
+                  Anular Pago y Reabrir
+                </Button>
+              )}
               <Button onClick={handlePrint} disabled={cobrando}>
                 Imprimir Comandera
               </Button>
@@ -573,7 +604,7 @@ export function CuentaModal({
             {operacionActual && (
               <Space>
                 <Typography.Text>Personas:</Typography.Text>
-                {esModoMuseo ? (
+                {esSoloLectura ? (
                   <Typography.Text strong>{personasEditables}</Typography.Text>
                 ) : (
                   <InputNumber
@@ -584,11 +615,12 @@ export function CuentaModal({
                 )}
               </Space>
             )}
-            {operacionActual && !esModoMuseo && (
+            {operacionActual && (
               <Space>
                 <Typography.Text>Mozo:</Typography.Text>
                 <Select
                   value={mozoEditado}
+                  disabled={esSoloLectura}
                   onChange={(val) => {
                     setMozoEditado(val);
                     setHayCambios(true);

@@ -36,7 +36,7 @@ export function ComandaForm() {
 
   const mesaSeleccionada = Form.useWatch("numero_mesa", form);
   const esMesaExistente = !!operacionesActivas.find(
-    (op) => op.numero_mesa === mesaSeleccionada && op.estado === "Abierta",
+    (op) => op.numero_mesa === mesaSeleccionada,
   );
 
   const [enviando, setEnviando] = useState(false);
@@ -76,7 +76,7 @@ export function ComandaForm() {
   const handleValuesChange = (changedValues: any) => {
     if (changedValues.numero_mesa !== undefined) {
       const mesaExistente = operacionesActivas.find(
-        (op) => op.numero_mesa === changedValues.numero_mesa && op.estado === "Abierta",
+        (op) => op.numero_mesa === changedValues.numero_mesa,
       );
 
       if (mesaExistente) {

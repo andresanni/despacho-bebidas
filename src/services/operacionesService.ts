@@ -190,6 +190,19 @@ export async function cobrarOperacion(
   if (error) throw error;
 }
 
+export async function anularPagoYReabrir(operacionId: string): Promise<void> {
+  const { error } = await supabase
+    .from("operaciones")
+    .update({
+      estado: "Abierta",
+      metodo_pago: null,
+      total_neto: null,
+    })
+    .eq("id", operacionId);
+
+  if (error) throw error;
+}
+
 export async function eliminarOperacion(operacionId: string): Promise<void> {
   // Por precaución, borramos primero los ítems (por si Supabase no tiene ON DELETE CASCADE activado)
   await supabase

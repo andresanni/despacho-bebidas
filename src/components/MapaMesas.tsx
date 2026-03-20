@@ -129,26 +129,29 @@ export function MapaMesas() {
                   borderColor: op.estado === "Pagada" ? "#13c2c2" : "#303030",
                   opacity: op.estado === "Pagada" ? 0.85 : 1,
                 }}
+                styles={{ body: { padding: "10px 12px 12px" } }}
               >
-                <Typography.Text>
-                  Personas: {op.cantidad_personas || "-"}
+                {/* Personas + Mozo */}
+                <div style={{ marginBottom: "0.4rem" }}>
+                  <Typography.Text style={{ fontSize: "13px", color: "#aaa" }}>
+                    {op.cantidad_personas || "-"} personas
+                  </Typography.Text>
+                </div>
+                <Typography.Text style={{ fontSize: "15px", fontWeight: 600, display: "block", textAlign: "center" }}>
+                  {getMozoNombre(op.mozo_id)}
                 </Typography.Text>
-                <br />
-                <Typography.Text type="secondary">
-                  Mozo: {getMozoNombre(op.mozo_id)}
-                </Typography.Text>
-                
-                {/* Visualización en Vivo del Subtotal de la Mesa */}
-                <div style={{ marginTop: '0.75rem', textAlign: 'center' }}>
+
+                {/* Subtotal en Vivo */}
+                <div style={{ marginTop: '0.4rem', textAlign: 'center' }}>
                   {op.items_operacion && op.items_operacion.length > 0 ? (
                     (() => {
                       const totalVivo = op.items_operacion.reduce((acc: number, item: any) => {
                         const cantCobrar = item.cantidad - item.cantidad_bonificada_100 - (item.cantidad_bonificada_50 * 0.5);
                         return acc + (cantCobrar * item.precio_unitario);
                       }, 0);
-                      
+
                       if (totalVivo > 0) {
-                        return <Typography.Title level={4} style={{ margin: 0, color: '#13c2c2' }}>$ {totalVivo.toLocaleString('es-AR')}</Typography.Title>;
+                        return <Typography.Title level={5} style={{ margin: 0, color: '#13c2c2' }}>$ {totalVivo.toLocaleString('es-AR')}</Typography.Title>;
                       } else {
                         return <Tag color="success">🎁 Bonificada ($0)</Tag>;
                       }
@@ -162,7 +165,7 @@ export function MapaMesas() {
                   type={op.estado === "Pagada" ? "default" : "primary"}
                   ghost={op.estado !== "Pagada"}
                   block
-                  style={{ marginTop: "1rem" }}
+                  style={{ marginTop: "0.5rem" }}
                   onClick={() => handleAbrirModal(op.id)}
                 >
                   {op.estado === "Pagada" ? "Ver Recibo" : "Ver Cuenta"}
