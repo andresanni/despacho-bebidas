@@ -242,3 +242,11 @@ export async function sincronizarPersonasMesa(
 
   if (itemsError) throw itemsError;
 }
+
+export async function cerrarJornadaDb(jornadaId: string): Promise<void> {
+  const { error } = await supabase
+    .from('jornadas')
+    .update({ estado: 'cerrada' })
+    .eq('id', jornadaId);
+  if (error) throw error;
+}

@@ -1,5 +1,4 @@
-import { useState } from "react";
-import { Layout, Typography, Menu, Button, Spin, Alert, message } from "antd";
+import { Layout, Typography, Menu, Spin, Alert } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   AppstoreOutlined,
@@ -9,7 +8,6 @@ import {
 } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import { useAppInit } from "../hooks/useAppInit";
-import { cerrarJornadaSegura } from "../services/jornadasService";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -20,26 +18,6 @@ export function MainLayout() {
   const { loading, error } = useAppInit();
 
   const jornadaActiva = useAppStore((state) => state.jornadaActiva);
-  const setJornadaActiva = useAppStore((state) => state.setJornadaActiva);
-
-  const [cerrandoJornada, setCerrandoJornada] = useState(false);
-
-  const handleCerrarJornada = async () => {
-    if (!jornadaActiva) return;
-    try {
-      setCerrandoJornada(true);
-
-      // Valida y llama al trigger centralizado
-      await cerrarJornadaSegura(jornadaActiva.id);
-
-      setJornadaActiva(null);
-    } catch (err: any) {
-      console.error("Error cerrando jornada:", err);
-      message.error(err.message || "No se pudo cerrar la jornada.");
-    } finally {
-      setCerrandoJornada(false);
-    }
-  };
 
   const menuItems = [
     {
@@ -101,13 +79,6 @@ export function MainLayout() {
                 message={`✅ Operando (${new Date(jornadaActiva.creado_en).toLocaleDateString()})`}
                 style={{ padding: "4px 12px" }}
               />
-              <Button
-                danger
-                loading={cerrandoJornada}
-                onClick={handleCerrarJornada}
-              >
-                Cerrar Jornada
-              </Button>
             </div>
           ) : (
             <Alert

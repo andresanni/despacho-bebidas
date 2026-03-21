@@ -28,6 +28,7 @@ export function DespachoView() {
   const fetchMesasCaja = useAppStore((state) => state.fetchMesasCaja);
   const verificarCambiosDeCaja = useAppStore((state) => state.verificarCambiosDeCaja);
 
+
   const handleOpenConfig = () => {
     setUrlInput(jornadaSeleccionada?.url_caja_sheets || "");
     setConfigUrlVisible(true);
