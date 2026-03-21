@@ -108,20 +108,19 @@ export function MapaMesas() {
                     <Typography.Title level={4} style={{ margin: 0 }}>
                       Mesa {op.numero_mesa}
                     </Typography.Title>
-                    <Tag
-                      color={
-                        op.estado === "Abierta"
-                          ? "green"
-                          : op.estado === "Pagada"
-                            ? "cyan"
-                            : "orange"
+                    {(() => {
+                      if (op.estado === "Pagada") {
+                        if (op.metodo_pago === "Bonificación 100%" || op.total_neto === 0) {
+                          return <Tag color="gold">Bonificada</Tag>;
+                        }
+                        return (
+                          <Tag color="cyan" icon={<CheckCircleOutlined />}>
+                            Pagada
+                          </Tag>
+                        );
                       }
-                      icon={
-                        op.estado === "Pagada" ? <CheckCircleOutlined /> : null
-                      }
-                    >
-                      {op.estado}
-                    </Tag>
+                      return <Tag color={op.estado === "Abierta" ? "green" : "orange"}>{op.estado}</Tag>;
+                    })()}
                   </Space>
                 }
                 style={{

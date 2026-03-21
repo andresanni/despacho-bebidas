@@ -1,13 +1,15 @@
-import { Layout, Typography, Menu, Spin, Alert } from "antd";
+import { Layout, Typography, Menu, Spin, Alert, Button, message } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   AppstoreOutlined,
   UnorderedListOutlined,
   TeamOutlined,
   HistoryOutlined,
+  LogoutOutlined,
 } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import { useAppInit } from "../hooks/useAppInit";
+import { logout } from "../services/authService";
 
 const { Header, Content, Sider } = Layout;
 const { Title } = Typography;
@@ -72,21 +74,36 @@ export function MainLayout() {
           }}
         >
           <div /> {/* Espaciador flexible si se requiere */}
-          {jornadaActiva ? (
-            <div style={{ display: "flex", gap: "1rem" }}>
+          <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+            {jornadaActiva ? (
               <Alert
                 type="success"
                 message={`✅ Operando (${new Date(jornadaActiva.creado_en).toLocaleDateString()})`}
                 style={{ padding: "4px 12px" }}
               />
-            </div>
-          ) : (
-            <Alert
-              type="warning"
-              message="🟠 Visualizando en Modo Histórico (Solo Lectura)"
-              style={{ padding: "4px 12px" }}
-            />
-          )}
+            ) : (
+              <Alert
+                type="warning"
+                message="🟠 Visualizando en Modo Histórico (Solo Lectura)"
+                style={{ padding: "4px 12px" }}
+              />
+            )}
+            <Button
+              type="text"
+              danger
+              icon={<LogoutOutlined />}
+              onClick={async () => {
+                try {
+                  await logout();
+                  message.success("Sesión cerrada correctamente");
+                } catch (error: any) {
+                  message.error(error.message || "Error al cerrar sesión");
+                }
+              }}
+            >
+              Cerrar Sesión
+            </Button>
+          </div>
         </Header>
 
         <Content

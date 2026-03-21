@@ -1,12 +1,22 @@
 import { ConfigProvider, theme } from "antd";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { MainLayout } from "./layouts/MainLayout";
+import { useEffect } from "react";
 import { JornadasView } from "./views/JornadasView";
 import { DespachoView } from "./views/DespachoView";
 import { CatalogoView } from "./views/CatalogoView";
 import { MozosView } from "./views/MozosView";
+import { LoginView } from "./views/LoginView";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { useAppStore } from "./store/useAppStore";
 
 function App() {
+  const inicializarAuth = useAppStore((state) => state.inicializarAuth);
+
+  useEffect(() => {
+    inicializarAuth();
+  }, [inicializarAuth]);
+
   return (
     <ConfigProvider
       theme={{
@@ -20,7 +30,18 @@ function App() {
     >
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<MainLayout />}>
+          {/* Ruta pública */}
+          <Route path="/login" element={<LoginView />} />
+
+          {/* Rutas protegidas */}
+          <Route
+            path="/"
+            element={
+              <ProtectedRoute>
+                <MainLayout />
+              </ProtectedRoute>
+            }
+          >
             {/* Ruta por defecto: Historial */}
             <Route index element={<JornadasView />} />
 

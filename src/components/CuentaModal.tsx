@@ -333,11 +333,12 @@ export function CuentaModal({
     }
   };
 
-  const handleCobrar = async () => {
+  const handleCobrar = async (metodoOpcional?: string) => {
     if (!operacionActual) return;
+    const metodoDefinitivo = metodoOpcional || metodoPago;
     try {
       setCobrando(true);
-      await cobrarOperacion(operacionActual.id, metodoPago, totalNeto);
+      await cobrarOperacion(operacionActual.id, metodoDefinitivo, totalNeto);
 
       setOperacionesActivas(
         operacionesActivas.map((op) =>
@@ -345,7 +346,7 @@ export function CuentaModal({
             ? {
                 ...op,
                 estado: "Pagada",
-                metodo_pago: metodoPago as any,
+                metodo_pago: metodoDefinitivo as any,
                 total_neto: totalNeto,
               }
             : op,
@@ -566,27 +567,42 @@ export function CuentaModal({
                       Anular Mesa
                     </Button>
                   </Popconfirm>
-                  <Space.Compact>
-                    <Select
-                      value={metodoPago}
-                      onChange={setMetodoPago}
-                      disabled={cobrando}
-                      style={{ width: "120px" }}
-                      options={[
-                        { value: "Efectivo", label: "Efectivo" },
-                        { value: "QR", label: "MercadoPago/QR" },
-                        { value: "Debito", label: "Débito" },
-                      ]}
-                    />
+                  {totalNeto === 0 && operacionActual?.estado === "Abierta" ? (
                     <Button
-                      type="primary"
-                      danger
+                      style={{
+                        backgroundColor: "#237804",
+                        borderColor: "#237804",
+                        color: "#fff",
+                        boxShadow: "none",
+                      }}
                       loading={cobrando}
-                      onClick={handleCobrar}
+                      onClick={() => handleCobrar("Bonificación 100%")}
                     >
-                      Cobrar y Cerrar
+                      Cerrar Cuenta (100% Bonificada)
                     </Button>
-                  </Space.Compact>
+                  ) : (
+                    <Space.Compact>
+                      <Select
+                        value={metodoPago}
+                        onChange={setMetodoPago}
+                        disabled={cobrando}
+                        style={{ width: "120px" }}
+                        options={[
+                          { value: "Efectivo", label: "Efectivo" },
+                          { value: "QR", label: "MercadoPago/QR" },
+                          { value: "Debito", label: "Débito" },
+                        ]}
+                      />
+                      <Button
+                        type="primary"
+                        danger
+                        loading={cobrando}
+                        onClick={() => handleCobrar()}
+                      >
+                        Cobrar y Cerrar
+                      </Button>
+                    </Space.Compact>
+                  )}
                 </>
               )}
             </>

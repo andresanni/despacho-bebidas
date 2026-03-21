@@ -3,6 +3,7 @@ import type { Mozo, Bebida, Jornada, Operacion, ItemOperacion } from "../types";
 import { sincronizarPersonasMesa, getOperacionesConItems } from "../services/operacionesService";
 import { obtenerDatosCajaExterna } from "../services/cajaExternaService";
 import { message } from "antd";
+import { supabase } from "../lib/supabase";
 
 export interface MesaCaja {
   mesa: number;
@@ -17,8 +18,11 @@ interface AppState {
   operacionesActivas: Operacion[];
   itemsOperaciones: ItemOperacion[];
   mesasCaja: MesaCaja[];
+  usuario: any | null;
 
   // Acciones (Setters)
+  setUsuario: (user: any) => void;
+  inicializarAuth: () => void;
   setMozos: (mozos: Mozo[]) => void;
   setBebidas: (bebidas: Bebida[]) => void;
   setJornadaActiva: (jornada: Jornada | null) => void;
@@ -37,6 +41,17 @@ export const useAppStore = create<AppState>((set, get) => ({
   operacionesActivas: [],
   itemsOperaciones: [],
   mesasCaja: [],
+  usuario: null,
+
+  setUsuario: (user) => set({ usuario: user }),
+  inicializarAuth: () => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      set({ usuario: session?.user ?? null });
+    });
+    supabase.auth.onAuthStateChange((_event, session) => {
+      set({ usuario: session?.user ?? null });
+    });
+  },
 
   setMozos: (mozos) => set({ mozos }),
   setBebidas: (bebidas) => set({ bebidas }),
