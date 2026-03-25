@@ -103,15 +103,15 @@ export function ComandaForm() {
         style={{
           padding: "2rem",
           textAlign: "center",
-          backgroundColor: "#1a1a1a",
+          backgroundColor: "#171f2c",
           borderRadius: "8px",
-          border: "1px dashed #444",
+          border: "1px dashed #1e293b",
         }}
       >
-        <Typography.Title level={4} style={{ color: "#888" }}>
+        <Typography.Title level={4} style={{ color: "#cbd5e1" }}>
           Modo Histórico
         </Typography.Title>
-        <Typography.Text type="secondary">
+        <Typography.Text style={{ color: "#94a3b8" }}>
           Esta jornada está cerrada. No se pueden agregar nuevas comandas.
         </Typography.Text>
       </div>
@@ -148,27 +148,51 @@ export function ComandaForm() {
         autoComplete="off"
         initialValues={{ items: [{}] }}
       >
-        <Form.Item
-          label="Número de Mesa"
-          name="numero_mesa"
-          rules={[
-            { required: true, message: "Por favor ingrese el número de mesa" },
-          ]}
-          style={{ marginBottom: "1.5rem" }}
-        >
-          <Select
-            size="large"
-            showSearch
-            placeholder="Ej: 12"
-            options={Array.from({ length: 100 }, (_, i) => ({
-              value: i + 1,
-              label: `${i + 1}`,
-            }))}
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
+        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
+          <Form.Item
+            label="Número de Mesa"
+            name="numero_mesa"
+            rules={[
+              { required: true, message: "Por favor ingrese el número de mesa" },
+            ]}
+            style={{ flex: 1, marginBottom: 0 }}
+          >
+            <Select
+              size="large"
+              className="select-numerico"
+              showSearch
+              placeholder="Ej: 12"
+              options={Array.from({ length: 100 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+              }))}
+              filterOption={(input, option) =>
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+              }
+            />
+          </Form.Item>
+
+          <Form.Item 
+            label="Cantidad de Personas" 
+            name="cantidad_personas"
+            style={{ flex: 1, marginBottom: 0 }}
+          >
+            <Select
+              size="large"
+              className="select-numerico"
+              showSearch
+              placeholder="Ej: 4"
+              disabled={esMesaExistente}
+              options={Array.from({ length: 100 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+              }))}
+              filterOption={(input, option) =>
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+              }
+            />
+          </Form.Item>
+        </div>
 
         <Form.Item
           label="Mozo"
@@ -193,22 +217,6 @@ export function ComandaForm() {
               </Select.Option>
             ))}
           </Select>
-        </Form.Item>
-
-        <Form.Item label="Cantidad de Personas" name="cantidad_personas" style={{ marginBottom: "1.5rem" }}>
-          <Select
-            size="large"
-            showSearch
-            placeholder="Ej: 4"
-            disabled={esMesaExistente}
-            options={Array.from({ length: 100 }, (_, i) => ({
-              value: i + 1,
-              label: `${i + 1}`,
-            }))}
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
         </Form.Item>
 
         <Divider>
@@ -276,6 +284,11 @@ export function ComandaForm() {
                   block
                   size="large"
                   icon={<PlusOutlined />}
+                  style={{
+                    backgroundColor: "rgba(255, 255, 255, 0.02)",
+                    borderColor: "#1f2937",
+                    color: "#94a3b8",
+                  }}
                 >
                   Agregar Bebida
                 </Button>

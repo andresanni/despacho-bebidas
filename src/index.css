@@ -2,3 +2,16 @@ body {
   margin: 0;
   overflow: hidden;
 }
+
+/* Reglas para aumentar el tamaño de fuente y altura de los selectores numéricos en Nueva Comanda */
+.select-numerico .ant-select-selector {
+  height: 50px !important;
+  font-size: 1.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.select-numerico .ant-select-selection-item,
+.select-numerico .ant-select-selection-placeholder {
+  line-height: 48px !important;
+}

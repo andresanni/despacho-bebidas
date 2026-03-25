@@ -539,7 +539,6 @@ export function CuentaModal({
           ) : hayCambios ? (
             <Button
               type="primary"
-              style={{ backgroundColor: "#d97706", borderColor: "#d97706" }}
               loading={guardando}
               onClick={handleGuardarCambios}
             >
@@ -581,27 +580,50 @@ export function CuentaModal({
                       Cerrar Cuenta (100% Bonificada)
                     </Button>
                   ) : (
-                    <Space.Compact>
-                      <Select
-                        value={metodoPago}
-                        onChange={setMetodoPago}
-                        disabled={cobrando}
-                        style={{ width: "120px" }}
-                        options={[
-                          { value: "Efectivo", label: "Efectivo" },
-                          { value: "QR", label: "MercadoPago/QR" },
-                          { value: "Debito", label: "Débito" },
-                        ]}
-                      />
-                      <Button
-                        type="primary"
-                        danger
-                        loading={cobrando}
-                        onClick={() => handleCobrar()}
-                      >
-                        Cobrar y Cerrar
-                      </Button>
-                    </Space.Compact>
+                    <Space direction="vertical" align="end" size="small">
+                      <Space.Compact>
+                        <Select
+                          value={metodoPago}
+                          onChange={setMetodoPago}
+                          disabled={cobrando}
+                          style={{ width: "120px" }}
+                          options={[
+                            { value: "Efectivo", label: "Efectivo" },
+                            { value: "QR", label: "MercadoPago/QR" },
+                            { value: "Debito", label: "Débito" },
+                          ]}
+                        />
+                        <Button
+                          type="primary"
+                          danger
+                          loading={cobrando}
+                          onClick={() => handleCobrar()}
+                        >
+                          Cobrar y Cerrar
+                        </Button>
+                      </Space.Compact>
+                      {operacionActual?.estado === "Abierta" && (
+                        <div style={{ textAlign: "right", marginTop: "4px" }}>
+                          <Button 
+                            danger 
+                            type="dashed" 
+                            disabled={cobrando}
+                            onClick={() => {
+                              Modal.confirm({
+                                title: '¿Marcar mesa como Incobrable?',
+                                content: 'La mesa se cerrará y el importe se registrará como pérdida (Incobrable).',
+                                okText: 'Sí, registrar pérdida',
+                                okType: 'danger',
+                                cancelText: 'Cancelar',
+                                onOk: () => handleCobrar('Incobrable')
+                              });
+                            }}
+                          >
+                            Marcar como Incobrable (Sin Pago)
+                          </Button>
+                        </div>
+                      )}
+                    </Space>
                   )}
                 </>
               )}

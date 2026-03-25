@@ -130,8 +130,8 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
   const columns: any[] = [baseColumn];
 
   if (!esModoMuseo) {
-    const activeColorCell = "rgba(100, 149, 237, 0.05)";
-    const activeColorHeader = "rgba(100, 149, 237, 0.08)";
+    const activeColorCell = "#1e293b"; // Azul grisáceo claro
+    const activeColorHeader = "#334155"; // Azul grisáceo algo más fuerte para énfasis
 
     columns.push(
       {
@@ -195,7 +195,7 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
             value={totalRecaudado}
             precision={0}
             prefix="$"
-            valueStyle={{ color: "#3f8600", fontSize: "2rem" }}
+            valueStyle={{ color: "#13c2c2", fontSize: "2rem" }}
           />
         </Col>
         <Col span={8}>

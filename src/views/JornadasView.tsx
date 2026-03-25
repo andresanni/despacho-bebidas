@@ -85,7 +85,12 @@ export function JornadasView() {
       dataIndex: "estado",
       key: "estado",
       render: (estado: string) => (
-        <Tag color={estado === "abierta" ? "green" : "default"}>
+        <Tag 
+          style={estado === "abierta" 
+            ? { backgroundColor: "#064e3b", color: "#34d399", border: "1px solid #059669" }
+            : { backgroundColor: "#1e293b", color: "#94a3b8", border: "1px solid #334155" }
+          }
+        >
           {estado.toUpperCase()}
         </Tag>
       ),
@@ -109,7 +114,7 @@ export function JornadasView() {
 
   return (
     <div style={{ padding: "2rem", height: "100%", overflowY: "auto" }}>
-      <Card style={{ backgroundColor: "#1f1f1f", borderColor: "#303030" }}>
+      <Card style={{ backgroundColor: "#171f2c", borderColor: "#1e293b" }}>
         <Space
           style={{
             width: "100%",

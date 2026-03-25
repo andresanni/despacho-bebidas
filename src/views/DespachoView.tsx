@@ -128,7 +128,7 @@ export function DespachoView() {
           display: "flex",
           flexDirection: "column",
           justifyContent: "flex-start",
-          borderRight: "1px solid #303030",
+          borderRight: "1px solid #1e293b",
         }}
       >
         <ComandaForm />
@@ -142,7 +142,7 @@ export function DespachoView() {
           display: "flex",
           flexDirection: "column",
           padding: "2rem 0 2rem 2rem",
-          backgroundColor: "#1a1a1a",
+          backgroundColor: "#0d1421",
           overflow: "hidden",
         }}
       >

@@ -37,11 +37,22 @@ export function LoginView() {
       justifyContent: 'center',
       alignItems: 'center',
       height: '100vh',
-      backgroundColor: '#141414'
+      backgroundColor: '#0d1421'
     }}>
-      <Card style={{ width: 400, backgroundColor: '#1f1f1f', borderColor: '#303030' }} styles={{ body: { padding: '2rem' } }}>
+      <Card style={{ width: 400, backgroundColor: '#171f2c', borderColor: '#1e293b' }} styles={{ body: { padding: '2rem' } }}>
         <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-          <Title level={3} style={{ color: '#d97706', margin: 0 }}>Maria Gracia Bebidas</Title>
+          <Title 
+            level={3} 
+            style={{ 
+              color: "#cbd5e1", 
+              margin: 0, 
+              fontWeight: "700",
+              textTransform: "uppercase",
+              fontSize: "20px"
+            }}
+          >
+            MARIA GRACIA
+          </Title>
           <Typography.Text type="secondary">Acceso al Sistema Operativo</Typography.Text>
         </div>
 

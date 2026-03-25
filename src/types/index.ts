@@ -1,6 +1,6 @@
 export type EstadoJornada = "abierta" | "cerrada";
 export type EstadoOperacion = "Abierta" | "Ticket Impreso" | "Pagada";
-export type MetodoPago = "Efectivo" | "QR" | "Debito" | "Bonificación 100%" | null;
+export type MetodoPago = "Efectivo" | "QR" | "Debito" | "Bonificación 100%" | "Incobrable" | null;
 
 export interface Jornada {
   id: string; // uuid

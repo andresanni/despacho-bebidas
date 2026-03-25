@@ -1,4 +1,4 @@
-import { Layout, Typography, Menu, Spin, Alert, Button, message } from "antd";
+import { Layout, Typography, Menu, Spin, Alert, Button, message, ConfigProvider, theme } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   AppstoreOutlined,
@@ -46,20 +46,50 @@ export function MainLayout() {
 
   return (
     <Layout style={{ height: "100vh", overflow: "hidden" }}>
-      <Sider width={200} style={{ background: "#141414" }}>
-        <div style={{ padding: "1rem", textAlign: "center" }}>
-          <Title level={4} style={{ color: "#d97706", margin: 0 }}>
-            Maria Gracia Bebidas
+      <Sider width={200} style={{ background: "#0d1421", borderRight: "1px solid #1e293b" }}>
+        <div style={{ padding: "1.5rem 1rem", textAlign: "center" }}>
+          <Title 
+            level={3} 
+            style={{ 
+              color: "#cbd5e1", 
+              margin: 0, 
+              fontWeight: "700",
+              textTransform: "uppercase",
+              fontSize: "20px"
+            }}
+          >
+            MARIA GRACIA
           </Title>
+          <div style={{ 
+            height: "1px", 
+            background: "#1e293b", 
+            margin: "0.8rem auto 0",
+            width: "100%",
+          }} />
         </div>
-        <Menu
-          theme="dark"
-          mode="inline"
-          selectedKeys={[location.pathname]}
-          onClick={({ key }) => navigate(key)}
-          items={menuItems}
-          style={{ borderRight: 0, background: "#141414" }}
-        />
+        <ConfigProvider
+          theme={{
+            algorithm: theme.darkAlgorithm,
+            components: {
+              Menu: {
+                itemSelectedBg: "#171f2c",
+                itemSelectedColor: "#ffffff",
+                itemHoverBg: "#171f2c",
+                itemActiveBg: "#171f2c",
+                itemColor: "#94a3b8",
+                itemHoverColor: "#ffffff",
+              }
+            }
+          }}
+        >
+          <Menu
+            mode="inline"
+            selectedKeys={[location.pathname]}
+            onClick={({ key }) => navigate(key)}
+            items={menuItems.map(item => ({ ...item, style: { fontWeight: 500 } }))}
+            style={{ borderRight: 0, background: "#0d1421", marginTop: "1rem" }}
+          />
+        </ConfigProvider>
       </Sider>
 
       <Layout style={{ display: "flex", flexDirection: "column" }}>
@@ -69,8 +99,8 @@ export function MainLayout() {
             justifyContent: "space-between",
             alignItems: "center",
             padding: "0 2rem",
-            borderBottom: "1px solid #303030",
-            backgroundColor: "#121212",
+            borderBottom: "1px solid #1e293b",
+            backgroundColor: "#0d1421",
           }}
         >
           <div /> {/* Espaciador flexible si se requiere */}

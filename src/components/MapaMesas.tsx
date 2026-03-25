@@ -7,7 +7,6 @@ import {
   Tag,
   Button,
   Empty,
-  Space,
   Select,
 } from "antd";
 import { CheckCircleOutlined } from "@ant-design/icons";
@@ -104,60 +103,84 @@ export function MapaMesas() {
             <Col xs={24} sm={12} md={8} lg={6} xl={6} key={op.id}>
               <Card
                 title={
-                  <Space>
-                    <Typography.Title level={4} style={{ margin: 0 }}>
-                      Mesa {op.numero_mesa}
-                    </Typography.Title>
-                    {(() => {
-                      if (op.estado === "Pagada") {
-                        if (op.metodo_pago === "Bonificación 100%" || op.total_neto === 0) {
-                          return <Tag color="gold">Bonificada</Tag>;
+                  <div style={{ display: "flex", flexDirection: "column" }}>
+                    <div style={{ textAlign: "left" }}>
+                      <Typography.Title level={4} style={{ margin: 0 }}>
+                        Mesa {op.numero_mesa}
+                      </Typography.Title>
+                    </div>
+                    <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px", marginBottom: "4px" }}>
+                      {(() => {
+                        if (op.estado === "Pagada") {
+                          if (op.metodo_pago === "Incobrable") {
+                            return <Tag color="red" style={{ margin: 0 }}>Incobrable</Tag>;
+                          }
+                          if (op.metodo_pago === "Bonificación 100%" || op.total_neto === 0) {
+                            return <Tag style={{ backgroundColor: "#334155", color: "#cbd5e1", border: "1px solid #475569", margin: 0 }}>Bonificada</Tag>;
+                          }
+                          return (
+                            <Tag icon={<CheckCircleOutlined />} style={{ backgroundColor: "#155e75", color: "#22d3ee", border: "1px solid #0891b2", margin: 0 }}>
+                              Pagada
+                            </Tag>
+                          );
                         }
                         return (
-                          <Tag color="cyan" icon={<CheckCircleOutlined />}>
-                            Pagada
+                          <Tag 
+                            style={op.estado === "Abierta" 
+                              ? { backgroundColor: "#064e3b", color: "#34d399", border: "1px solid #059669", margin: 0 }
+                              : { backgroundColor: "#78350f", color: "#fbbf24", border: "1px solid #b45309", margin: 0 }
+                            }
+                          >
+                            {op.estado}
                           </Tag>
                         );
-                      }
-                      return <Tag color={op.estado === "Abierta" ? "green" : "orange"}>{op.estado}</Tag>;
-                    })()}
-                  </Space>
+                      })()}
+                    </div>
+                  </div>
                 }
                 style={{
-                  backgroundColor: "#1f1f1f",
-                  borderColor: op.estado === "Pagada" ? "#13c2c2" : "#303030",
+                  backgroundColor: "#171f2c",
+                  borderColor: op.estado === "Pagada" ? "#13c2c2" : "#1e293b",
                   opacity: op.estado === "Pagada" ? 0.85 : 1,
                 }}
                 styles={{ body: { padding: "10px 12px 12px" } }}
               >
-                {/* Personas + Mozo */}
-                <div style={{ marginBottom: "0.4rem" }}>
-                  <Typography.Text style={{ fontSize: "13px", color: "#aaa" }}>
+                {/* Fila 1: Mozo e Importe */}
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.2rem" }}>
+                  <Typography.Text style={{ fontSize: "14px", fontWeight: 600, color: "#f8f9fa" }}>
+                    {getMozoNombre(op.mozo_id)}
+                  </Typography.Text>
+                  
+                  {/* Subtotal en Vivo */}
+                  <div>
+                    {op.items_operacion && op.items_operacion.length > 0 ? (
+                      (() => {
+                        const totalVivo = op.items_operacion.reduce((acc: number, item: any) => {
+                          const cantCobrar = item.cantidad - item.cantidad_bonificada_100 - (item.cantidad_bonificada_50 * 0.5);
+                          return acc + (cantCobrar * item.precio_unitario);
+                        }, 0);
+
+                        if (totalVivo > 0) {
+                          return (
+                            <Typography.Text style={{ fontSize: "16px", fontWeight: "bold", color: '#0891b2' }}>
+                              $ {totalVivo.toLocaleString('es-AR')}
+                            </Typography.Text>
+                          );
+                        } else {
+                          return <Tag style={{ margin: 0, fontSize: "12px", backgroundColor: "#1e293b", color: "#94a3b8", border: "1px solid #334155", fontWeight: 600 }}>🎁 $0</Tag>;
+                        }
+                      })()
+                    ) : (
+                      <Typography.Text italic type="secondary" style={{ fontSize: "12px" }}>Mesa Vacía</Typography.Text>
+                    )}
+                  </div>
+                </div>
+
+                {/* Fila 2: Personas */}
+                <div style={{ marginBottom: "0.25rem", textAlign: "center" }}>
+                  <Typography.Text style={{ fontSize: "15px", color: "#cbd5e1", fontWeight: 500 }}>
                     {op.cantidad_personas || "-"} personas
                   </Typography.Text>
-                </div>
-                <Typography.Text style={{ fontSize: "15px", fontWeight: 600, display: "block", textAlign: "center" }}>
-                  {getMozoNombre(op.mozo_id)}
-                </Typography.Text>
-
-                {/* Subtotal en Vivo */}
-                <div style={{ marginTop: '0.4rem', textAlign: 'center' }}>
-                  {op.items_operacion && op.items_operacion.length > 0 ? (
-                    (() => {
-                      const totalVivo = op.items_operacion.reduce((acc: number, item: any) => {
-                        const cantCobrar = item.cantidad - item.cantidad_bonificada_100 - (item.cantidad_bonificada_50 * 0.5);
-                        return acc + (cantCobrar * item.precio_unitario);
-                      }, 0);
-
-                      if (totalVivo > 0) {
-                        return <Typography.Title level={5} style={{ margin: 0, color: '#13c2c2' }}>$ {totalVivo.toLocaleString('es-AR')}</Typography.Title>;
-                      } else {
-                        return <Tag color="success">🎁 Bonificada ($0)</Tag>;
-                      }
-                    })()
-                  ) : (
-                    <Typography.Text italic type="secondary">Mesa Vacía</Typography.Text>
-                  )}
                 </div>
 
                 <Button

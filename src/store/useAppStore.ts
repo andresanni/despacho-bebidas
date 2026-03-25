@@ -48,8 +48,12 @@ export const useAppStore = create<AppState>((set, get) => ({
     supabase.auth.getSession().then(({ data: { session } }) => {
       set({ usuario: session?.user ?? null });
     });
-    supabase.auth.onAuthStateChange((_event, session) => {
-      set({ usuario: session?.user ?? null });
+    supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || (event as string) === 'USER_DELETED') {
+        set({ usuario: null, operacionesActivas: [], mesasCaja: [] });
+      } else if (event === 'TOKEN_REFRESHED' || event === 'SIGNED_IN') {
+        set({ usuario: session?.user ?? null });
+      }
     });
   },
 

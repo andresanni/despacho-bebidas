@@ -22,8 +22,10 @@ function App() {
       theme={{
         algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: "#d97706", // Naranja cálido (estilo gastronomía)
-          colorBgBase: "#121212",
+          colorPrimary: "#0891b2", // Teal/Cian intenso (más moderno y refrescante)
+          colorBgBase: "#0d1421", // Azul-gris profundo oscuro
+          colorBgContainer: "#111827", // Fondo de inputs más integrado
+          colorBorder: "#1f2937", // Bordes más sutiles
           colorTextBase: "#ffffff",
         },
       }}

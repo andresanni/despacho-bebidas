@@ -138,7 +138,7 @@ export function CatalogoView() {
 
   return (
     <div style={{ padding: "2rem", height: "100%", overflowY: "auto" }}>
-      <Card style={{ backgroundColor: "#1f1f1f", borderColor: "#303030" }}>
+      <Card style={{ backgroundColor: "#171f2c", borderColor: "#1e293b" }}>
         <Space
           style={{
             width: "100%",
