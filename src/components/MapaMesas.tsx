@@ -119,7 +119,7 @@ export function MapaMesas() {
                             return <Tag style={{ backgroundColor: "#334155", color: "#cbd5e1", border: "1px solid #475569", margin: 0 }}>Bonificada</Tag>;
                           }
                           return (
-                            <Tag icon={<CheckCircleOutlined />} style={{ backgroundColor: "#155e75", color: "#22d3ee", border: "1px solid #0891b2", margin: 0 }}>
+                            <Tag icon={<CheckCircleOutlined />} style={{ backgroundColor: "#164e63", color: "#22d3ee", border: "1px solid #155e75", margin: 0 }}>
                               Pagada
                             </Tag>
                           );
@@ -140,7 +140,7 @@ export function MapaMesas() {
                 }
                 style={{
                   backgroundColor: "#171f2c",
-                  borderColor: op.estado === "Pagada" ? "#13c2c2" : "#1e293b",
+                  borderColor: op.estado === "Pagada" ? "#155e75" : "#1e293b",
                   opacity: op.estado === "Pagada" ? 0.85 : 1,
                 }}
                 styles={{ body: { padding: "10px 12px 12px" } }}
@@ -162,7 +162,7 @@ export function MapaMesas() {
 
                         if (totalVivo > 0) {
                           return (
-                            <Typography.Text style={{ fontSize: "16px", fontWeight: "bold", color: '#0891b2' }}>
+                            <Typography.Text style={{ fontSize: "16px", fontWeight: "bold", color: '#0e7490' }}>
                               $ {totalVivo.toLocaleString('es-AR')}
                             </Typography.Text>
                           );

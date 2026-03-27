@@ -130,8 +130,8 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
   const columns: any[] = [baseColumn];
 
   if (!esModoMuseo) {
-    const activeColorCell = "#1e293b"; // Azul grisáceo claro
-    const activeColorHeader = "#334155"; // Azul grisáceo algo más fuerte para énfasis
+    const activeColorCell = "#0f172a"; // Slate 900 - Muy sutil, casi integrado al fondo
+    const activeColorHeader = "#1e293b"; // Slate 800 - Un poco más de cuerpo para el encabezado
 
     columns.push(
       {
@@ -195,7 +195,7 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
             value={totalRecaudado}
             precision={0}
             prefix="$"
-            valueStyle={{ color: "#13c2c2", fontSize: "2rem" }}
+            valueStyle={{ color: "#0891b2", fontSize: "2rem" }}
           />
         </Col>
         <Col span={8}>

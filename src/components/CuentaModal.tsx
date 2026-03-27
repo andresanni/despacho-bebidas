@@ -516,44 +516,33 @@ export function CuentaModal({
 
   return (
     <Modal
-      title={<Typography.Title level={4}>Detalle de Cuenta</Typography.Title>}
+      title={<Typography.Title level={4}>Mesa {operacionActual?.numero_mesa}</Typography.Title>}
       open={visible}
       onCancel={onClose}
       width={800}
       footer={
-        <Space>
-          {esSoloLectura ? (
-            <>
-              {estaPagada && !isJornadaCerrada && (
-                <Button danger type="dashed" onClick={handleReabrirCuenta}>
-                  Anular Pago y Reabrir
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
+          <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+            {esSoloLectura ? (
+              <>
+                <Button onClick={handlePrint} disabled={cobrando}>
+                  Imprimir Comandera
                 </Button>
-              )}
-              <Button onClick={handlePrint} disabled={cobrando}>
-                Imprimir Comandera
-              </Button>
-              <Button onClick={handlePrintA4} disabled={cobrando}>
-                Imprimir (Láser A4)
-              </Button>
-            </>
-          ) : hayCambios ? (
-            <Button
-              type="primary"
-              loading={guardando}
-              onClick={handleGuardarCambios}
-            >
-              Guardar Cambios
-            </Button>
-          ) : (
-            <>
-              <Button onClick={handlePrint} disabled={cobrando}>
-                Imprimir Comandera
-              </Button>
-              <Button onClick={handlePrintA4} disabled={cobrando} style={{ marginRight: '8px' }}>
-                Imprimir (Láser A4)
-              </Button>
-              {!estaPagada && !isJornadaCerrada && (
-                <>
+                <Button onClick={handlePrintA4} disabled={cobrando}>
+                  Imprimir (Láser A4)
+                </Button>
+              </>
+            ) : hayCambios ? (
+              null // El botón principal ocupará la derecha
+            ) : (
+              <>
+                <Button onClick={handlePrint} disabled={cobrando}>
+                  Imprimir Comandera
+                </Button>
+                <Button onClick={handlePrintA4} disabled={cobrando}>
+                  Imprimir (Láser A4)
+                </Button>
+                {!estaPagada && !isJornadaCerrada && (
                   <Popconfirm
                     title="¿Anular mesa?"
                     description="Se eliminará la comanda completa. Esta acción no se puede deshacer."
@@ -566,48 +555,70 @@ export function CuentaModal({
                       Anular Mesa
                     </Button>
                   </Popconfirm>
-                  {totalNeto === 0 && operacionActual?.estado === "Abierta" ? (
+                )}
+              </>
+            )}
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+            {esSoloLectura ? (
+              <>
+                {estaPagada && !isJornadaCerrada && (
+                  <Button danger type="dashed" onClick={handleReabrirCuenta}>
+                    Anular Pago y Reabrir
+                  </Button>
+                )}
+              </>
+            ) : hayCambios ? (
+              <Button
+                type="primary"
+                loading={guardando}
+                onClick={handleGuardarCambios}
+              >
+                Guardar Cambios
+              </Button>
+            ) : (
+              <>
+                {!estaPagada && !isJornadaCerrada && (
+                  <>
+                    {totalNeto === 0 && operacionActual?.estado === "Abierta" ? (
                     <Button
-                      style={{
-                        backgroundColor: "#237804",
-                        borderColor: "#237804",
-                        color: "#fff",
-                        boxShadow: "none",
-                      }}
+                      type="primary"
                       loading={cobrando}
                       onClick={() => handleCobrar("Bonificación 100%")}
+                      style={{ width: "100%" }}
                     >
                       Cerrar Cuenta (100% Bonificada)
                     </Button>
-                  ) : (
-                    <Space direction="vertical" align="end" size="small">
-                      <Space.Compact>
-                        <Select
-                          value={metodoPago}
-                          onChange={setMetodoPago}
-                          disabled={cobrando}
-                          style={{ width: "120px" }}
-                          options={[
-                            { value: "Efectivo", label: "Efectivo" },
-                            { value: "QR", label: "MercadoPago/QR" },
-                            { value: "Debito", label: "Débito" },
-                          ]}
-                        />
-                        <Button
-                          type="primary"
-                          danger
-                          loading={cobrando}
-                          onClick={() => handleCobrar()}
-                        >
-                          Cobrar y Cerrar
-                        </Button>
-                      </Space.Compact>
-                      {operacionActual?.estado === "Abierta" && (
-                        <div style={{ textAlign: "right", marginTop: "4px" }}>
+                    ) : (
+                      <>
+                        <Space.Compact>
+                          <Select
+                            value={metodoPago}
+                            onChange={setMetodoPago}
+                            disabled={cobrando}
+                            style={{ width: "130px", textAlign: "center" }}
+                            options={[
+                              { value: "Efectivo", label: "Efectivo" },
+                              { value: "QR", label: "MercadoPago/QR" },
+                              { value: "Debito", label: "Débito" },
+                            ]}
+                          />
+                          <Button
+                            type="primary"
+                            danger
+                            loading={cobrando}
+                            onClick={() => handleCobrar()}
+                          >
+                            Cobrar y Cerrar
+                          </Button>
+                        </Space.Compact>
+                        {operacionActual?.estado === "Abierta" && (
                           <Button 
                             danger 
                             type="dashed" 
                             disabled={cobrando}
+                            style={{ width: "100%" }}
                             onClick={() => {
                               Modal.confirm({
                                 title: '¿Marcar mesa como Incobrable?',
@@ -621,15 +632,15 @@ export function CuentaModal({
                           >
                             Marcar como Incobrable (Sin Pago)
                           </Button>
-                        </div>
-                      )}
-                    </Space>
-                  )}
-                </>
-              )}
-            </>
-          )}
-        </Space>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </div>
+        </div>
       }
     >
       {loading ? (

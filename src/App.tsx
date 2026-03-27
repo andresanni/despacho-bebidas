@@ -22,11 +22,14 @@ function App() {
       theme={{
         algorithm: theme.darkAlgorithm,
         token: {
-          colorPrimary: "#0891b2", // Teal/Cian intenso (más moderno y refrescante)
+          colorPrimary: "#155e75", // Cyan 800 - Más sobrio y profesional
           colorBgBase: "#0d1421", // Azul-gris profundo oscuro
-          colorBgContainer: "#111827", // Fondo de inputs más integrado
+          colorBgContainer: "#0d1421", // Fondo de contenedores (inputs, etc) integrado al base
+          colorBgElevated: "#111827", // Fondo de Modales, Drawers y Selects mucho más oscuro
           colorBorder: "#1f2937", // Bordes más sutiles
-          colorTextBase: "#ffffff",
+          colorTextBase: "#e2e8f0", // Blanco apagado (Slate 200) para menor contraste
+          controlItemBgHover: "#1e293b", // Highlight más sutil en Selects
+          controlItemBgActive: "#1e293b",
         },
       }}
     >
