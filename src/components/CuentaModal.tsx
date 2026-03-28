@@ -13,7 +13,7 @@ import {
   Select,
   Popconfirm,
 } from "antd";
-import { DeleteOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
 import { supabase } from "../lib/supabase";
 import { useAppStore } from "../store/useAppStore";
@@ -23,6 +23,7 @@ import {
   eliminarOperacion,
   getOperacionesConItems,
   anularPagoYReabrir,
+  agregarItemExtra,
 } from "../services/operacionesService";
 import { TicketImpresion } from "./TicketImpresion";
 import { TicketA4 } from "./TicketA4";
@@ -51,6 +52,8 @@ export function CuentaModal({
   const [mozoEditado, setMozoEditado] = useState<string | undefined>(undefined);
   const [metodoPago, setMetodoPago] = useState<string>("Efectivo");
   const [cobrando, setCobrando] = useState(false);
+  const [bebidaExtraId, setBebidaExtraId] = useState<string | null>(null);
+  const [agregandoExtra, setAgregandoExtra] = useState(false);
 
   const bebidas = useAppStore((state) => state.bebidas);
   const operacionesActivas = useAppStore((state) => state.operacionesActivas);
@@ -363,6 +366,61 @@ export function CuentaModal({
     }
   };
 
+  const handleAgregarExtra = async () => {
+    if (!bebidaExtraId || !operacionActual) return;
+    try {
+      setAgregandoExtra(true);
+      const bebida = bebidas.find(b => b.id === bebidaExtraId);
+      if (!bebida) return;
+      
+      await agregarItemExtra(operacionActual.id, bebida.id, bebida.precio_actual);
+      
+      setBebidaExtraId(null);
+      
+      if (jornadaSeleccionada) {
+        // Aprovechamos la recarga global de operaciones ya existente para reactividad visual
+        const dataRefrescada = await getOperacionesConItems(jornadaSeleccionada.id);
+        setOperacionesActivas(dataRefrescada as any);
+
+        // LA CLAVE QUE FALTABA: Actualizar la foto local del modal (setear `items` y `bonificaciones`)
+        const operacionActualizada = dataRefrescada.find((op: any) => op.id === operacionActual.id);
+        if (operacionActualizada && operacionActualizada.items_operacion) {
+          // Ordenar los items por ID o creado_en
+          const itemsOrdenados = [...operacionActualizada.items_operacion].sort(
+            (a: any, b: any) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime()
+          );
+
+          const dataMapeada = itemsOrdenados.map((item: any) => {
+            // Conservamos la edición local si el ítem ya existía
+            const existente = items.find(i => i.id === item.id);
+            return {
+              ...item,
+              cantidadEditable: existente ? existente.cantidadEditable : item.cantidad,
+            };
+          });
+          setItems(dataMapeada);
+
+          const nuevasBonificaciones: Record<string, { b100: number; b50: number }> = { ...bonificaciones };
+          itemsOrdenados.forEach((item: any) => {
+            if (!nuevasBonificaciones[item.id]) {
+              nuevasBonificaciones[item.id] = {
+                b100: item.cantidad_bonificada_100 || 0,
+                b50: item.cantidad_bonificada_50 || 0,
+              };
+            }
+          });
+          setBonificaciones(nuevasBonificaciones);
+        }
+      }
+      message.success(`${bebida.nombre} agregado a la cuenta`);
+    } catch (error: any) {
+      console.error("Error al agregar extra:", error);
+      message.error("Error al agregar ítem: " + error.message);
+    } finally {
+      setAgregandoExtra(false);
+    }
+  };
+
   const dataSource = items.map((item) => {
     const bebida = bebidas.find((b) => b.id === item.bebida_id);
     const itemBonif = bonificaciones[item.id] || { b100: 0, b50: 0 };
@@ -463,13 +521,13 @@ export function CuentaModal({
       title: "P. Unit.",
       dataIndex: "precio_unitario",
       key: "precio_unitario",
-      render: (val: number) => `$${val.toFixed(2)}`,
+      render: (val: number) => `$${Math.round(val).toLocaleString("es-AR")}`,
     },
     {
       title: "Subtotal",
       dataIndex: "subtotal",
       key: "subtotal",
-      render: (val: number) => <strong>${val.toFixed(2)}</strong>,
+      render: (val: number) => <strong>${Math.round(val).toLocaleString("es-AR")}</strong>,
     },
     {
       title: "",
@@ -696,8 +754,32 @@ export function CuentaModal({
             size="small"
           />
           <Divider />
-          <Typography.Title level={3} style={{ textAlign: "right" }}>
-            Total: ${totalNeto.toFixed(2)}
+          {operacionActual?.estado === 'Abierta' && (
+            <div style={{ padding: '12px', backgroundColor: '#0f2238', borderRadius: '8px', marginBottom: '16px', display: 'flex', gap: '8px' }}>
+              <Select
+                showSearch
+                style={{ flex: 1 }}
+                placeholder="Agregar producto..."
+                value={bebidaExtraId}
+                onChange={setBebidaExtraId}
+                filterOption={(input, option) =>
+                  (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
+                }
+                options={bebidas.map(b => ({ value: b.id, label: `${b.nombre} ($${Math.round(b.precio_actual).toLocaleString("es-AR")})` }))}
+              />
+              <Button 
+                type="primary" 
+                icon={<PlusOutlined />} 
+                onClick={handleAgregarExtra}
+                loading={agregandoExtra}
+                disabled={!bebidaExtraId}
+              >
+                Agregar
+              </Button>
+            </div>
+          )}
+          <Typography.Title level={3} style={{ textAlign: "right", margin: 0 }}>
+            Total: ${Math.round(totalNeto).toLocaleString("es-AR")}
           </Typography.Title>
         </Space>
       )}

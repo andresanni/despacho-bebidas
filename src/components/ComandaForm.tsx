@@ -277,22 +277,22 @@ export function ComandaForm() {
                 </div>
               ))}
 
-              <Form.Item style={{ marginTop: "1rem" }}>
+              <div style={{ display: "flex", justifyContent: "center", marginTop: "0.5rem", marginBottom: "1rem" }}>
                 <Button
                   type="dashed"
                   onClick={() => add()}
-                  block
-                  size="large"
                   icon={<PlusOutlined />}
+                  title="Agregar Bebida"
+                  size="large"
                   style={{
+                    width: "80px",
                     backgroundColor: "rgba(255, 255, 255, 0.02)",
                     borderColor: "#1f2937",
                     color: "#94a3b8",
                   }}
-                >
-                  Agregar Bebida
-                </Button>
-              </Form.Item>
+                />
+              </div>
+
             </>
           )}
         </Form.List>

@@ -250,3 +250,12 @@ export async function cerrarJornadaDb(jornadaId: string): Promise<void> {
     .eq('id', jornadaId);
   if (error) throw error;
 }
+
+export async function agregarItemExtra(operacionId: string, bebidaId: string, precioActual: number) {
+  // Insertamos el ítem
+  const { error: insertError } = await supabase
+    .from('items_operacion')
+    .insert([{ operacion_id: operacionId, bebida_id: bebidaId, cantidad: 1, precio_unitario: precioActual }]);
+  
+  if (insertError) throw insertError;
+}

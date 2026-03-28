@@ -70,7 +70,7 @@ export const TicketImpresion = React.forwardRef<HTMLDivElement, TicketProps>(
                   {item.cantidadEditable} x {item.bebidaNombre}
                 </span>
                 <span>
-                  ${(item.cantidadEditable * item.precio_unitario).toFixed(2)}
+                  ${Math.round(item.cantidadEditable * item.precio_unitario).toLocaleString("es-AR")}
                 </span>
               </div>
             ))}
@@ -82,7 +82,7 @@ export const TicketImpresion = React.forwardRef<HTMLDivElement, TicketProps>(
               marginBottom: "10px",
             }}
           >
-            SUBTOTAL BRUTO: ${totalBruto.toFixed(2)}
+            SUBTOTAL BRUTO: ${Math.round(totalBruto).toLocaleString("es-AR")}
           </div>
           {/* Sección de Bonificaciones (Solo si hay descuentos) */}
           {totalDescuentos > 0 && (
@@ -108,7 +108,7 @@ export const TicketImpresion = React.forwardRef<HTMLDivElement, TicketProps>(
                           <span>
                             -{item.b100} {item.bebidaNombre} (100%)
                           </span>
-                          <span>-${desc100.toFixed(2)}</span>
+                          <span>-${Math.round(desc100).toLocaleString("es-AR")}</span>
                         </div>
                       )}
                       {item.b50 > 0 && (
@@ -122,7 +122,7 @@ export const TicketImpresion = React.forwardRef<HTMLDivElement, TicketProps>(
                           <span>
                             -{item.b50} {item.bebidaNombre} (50%)
                           </span>
-                          <span>-${desc50.toFixed(2)}</span>
+                          <span>-${Math.round(desc50).toLocaleString("es-AR")}</span>
                         </div>
                       )}
                     </div>
@@ -135,12 +135,12 @@ export const TicketImpresion = React.forwardRef<HTMLDivElement, TicketProps>(
           <h3
             style={{ margin: "10px 0", textAlign: "right", fontSize: "16px" }}
           >
-            TOTAL: ${totalNeto.toFixed(2)}
+            TOTAL: ${Math.round(totalNeto).toLocaleString("es-AR")}
           </h3>
 
           {totalDescuentos > 0 && (
             <p style={{ textAlign: "right", fontStyle: "italic", margin: 0 }}>
-              ¡Usted ahorró: ${totalDescuentos.toFixed(2)}!
+              ¡Usted ahorró: ${Math.round(totalDescuentos).toLocaleString("es-AR")}!
             </p>
           )}
           <p style={{ textAlign: "center", marginTop: "20px" }}>

@@ -193,8 +193,7 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
           <Statistic
             title="Recaudación Bruta Final"
             value={totalRecaudado}
-            precision={0}
-            prefix="$"
+            formatter={(val) => `$${Number(val).toLocaleString("es-AR")}`}
             valueStyle={{ color: "#0891b2", fontSize: "2rem" }}
           />
         </Col>
@@ -202,24 +201,21 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
           <Statistic
             title="Efectivo"
             value={totalEfectivo}
-            precision={0}
-            prefix={<><DollarOutlined /> $</>}
+            formatter={(val) => <><DollarOutlined /> ${Number(val).toLocaleString("es-AR")}</>}
           />
         </Col>
         <Col span={8}>
           <Statistic
             title="Débito"
             value={totalDebito}
-            precision={0}
-            prefix={<><CreditCardOutlined /> $</>}
+            formatter={(val) => <><CreditCardOutlined /> ${Number(val).toLocaleString("es-AR")}</>}
           />
         </Col>
         <Col span={8}>
           <Statistic
             title="MercadoPago / QR"
             value={totalQR}
-            precision={0}
-            prefix={<><QrcodeOutlined /> $</>}
+            formatter={(val) => <><QrcodeOutlined /> ${Number(val).toLocaleString("es-AR")}</>}
           />
         </Col>
       </Row>

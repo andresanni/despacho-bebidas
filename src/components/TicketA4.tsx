@@ -154,10 +154,10 @@ export const TicketA4 = forwardRef<HTMLDivElement, TicketA4Props>(
                       {textoBonif}
                     </td>
                     <td className="text-right">
-                      ${item.precio_unitario.toFixed(2)}
+                      ${Math.round(item.precio_unitario).toLocaleString("es-AR")}
                     </td>
                     <td className="text-right">
-                      ${item.subtotalBruto.toFixed(2)}
+                      ${Math.round(item.subtotalBruto).toLocaleString("es-AR")}
                     </td>
                   </tr>
                 );
@@ -192,7 +192,7 @@ export const TicketA4 = forwardRef<HTMLDivElement, TicketA4Props>(
                   <tr>
                     <td style={{ padding: "4px 0" }}>Subtotal:</td>
                     <td style={{ textAlign: "right", padding: "4px 0" }}>
-                      ${totalBruto.toFixed(2)}
+                      ${Math.round(totalBruto).toLocaleString("es-AR")}
                     </td>
                   </tr>
                   {totalDescuentos > 0 && (
@@ -207,7 +207,7 @@ export const TicketA4 = forwardRef<HTMLDivElement, TicketA4Props>(
                           color: "#d9534f",
                         }}
                       >
-                        -${totalDescuentos.toFixed(2)}
+                        -${Math.round(totalDescuentos).toLocaleString("es-AR")}
                       </td>
                     </tr>
                   )}
@@ -240,7 +240,7 @@ export const TicketA4 = forwardRef<HTMLDivElement, TicketA4Props>(
                         fontSize: "18px",
                       }}
                     >
-                      ${totalNeto.toFixed(2)}
+                      ${Math.round(totalNeto).toLocaleString("es-AR")}
                     </td>
                   </tr>
                 </tbody>
