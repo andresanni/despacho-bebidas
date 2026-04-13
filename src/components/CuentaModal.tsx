@@ -473,49 +473,53 @@ export function CuentaModal({
       title: "Bonif. 100%",
       key: "cantidad_bonificada_100",
       width: 100,
-      render: (_: any, record: any) =>
-        esSoloLectura ? (
-          <Typography.Text>
-            {bonificaciones[record.id]?.b100 || 0}
-          </Typography.Text>
+      render: (_: any, record: any) => {
+        const val = bonificaciones[record.id]?.b100 || 0;
+        return esSoloLectura ? (
+          val > 0 ? (
+            <Tag color="blue" style={{ fontSize: '14px', margin: 0, minWidth: '32px', textAlign: 'center' }}>
+              {val}
+            </Tag>
+          ) : (
+            <Typography.Text type="secondary">{val}</Typography.Text>
+          )
         ) : (
           <InputNumber
             min={0}
-            value={bonificaciones[record.id]?.b100 || 0}
-            onChange={(val) =>
-              handleBonifChange(
-                record.id,
-                "b100",
-                val || 0,
-                record.cantidadEditable,
-              )
+            value={val}
+            style={val > 0 ? { borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)' } : {}}
+            onChange={(v) =>
+              handleBonifChange(record.id, "b100", v || 0, record.cantidadEditable)
             }
           />
-        ),
+        );
+      },
     },
     {
       title: "Bonif. 50%",
       key: "cantidad_bonificada_50",
       width: 100,
-      render: (_: any, record: any) =>
-        esSoloLectura ? (
-          <Typography.Text>
-            {bonificaciones[record.id]?.b50 || 0}
-          </Typography.Text>
+      render: (_: any, record: any) => {
+        const val = bonificaciones[record.id]?.b50 || 0;
+        return esSoloLectura ? (
+          val > 0 ? (
+            <Tag color="blue" style={{ fontSize: '14px', margin: 0, minWidth: '32px', textAlign: 'center' }}>
+              {val}
+            </Tag>
+          ) : (
+            <Typography.Text type="secondary">{val}</Typography.Text>
+          )
         ) : (
           <InputNumber
             min={0}
-            value={bonificaciones[record.id]?.b50 || 0}
-            onChange={(val) =>
-              handleBonifChange(
-                record.id,
-                "b50",
-                val || 0,
-                record.cantidadEditable,
-              )
+            value={val}
+            style={val > 0 ? { borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)' } : {}}
+            onChange={(v) =>
+              handleBonifChange(record.id, "b50", v || 0, record.cantidadEditable)
             }
           />
-        ),
+        );
+      },
     },
     {
       title: "P. Unit.",
