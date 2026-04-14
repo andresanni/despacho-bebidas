@@ -12,6 +12,7 @@ import {
   Tag,
   Select,
   Popconfirm,
+  Tooltip,
 } from "antd";
 import { DeleteOutlined, PlusOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
@@ -66,6 +67,13 @@ export function CuentaModal({
   const operacionActual = operacionesActivas.find(
     (op) => op.id === operacionId,
   );
+
+  const esSegundaInstancia = operacionActual ? operacionesActivas.some(
+    (op) => op.numero_mesa === operacionActual.numero_mesa && 
+            op.id !== operacionActual.id &&
+            new Date(op.creado_en).getTime() < new Date(operacionActual.creado_en).getTime()
+  ) : false;
+
   const jornadaSeleccionada = useAppStore((state) => state.jornadaSeleccionada);
   const isJornadaCerrada = jornadaSeleccionada?.estado === "cerrada";
   const esModoMuseo = isJornadaCerrada;
@@ -157,6 +165,7 @@ export function CuentaModal({
   }, [operacionId, visible]);
 
   const calcularCreditosRestantes = () => {
+    if (esSegundaInstancia) return 0;
     if (!personasEditables) return 0;
     const creditosTotales = personasEditables; // 1 persona = 1 medio crédito
     let creditosGastados = 0;
@@ -190,8 +199,12 @@ export function CuentaModal({
   }, [personasEditables, visible, loading]);
 
   const aplicarBonificacionesSugeridas = () => {
-    let creditos100 = Math.floor(personasEditables / 2);
-    let creditos50 = personasEditables % 2 === 1 ? 1 : 0;
+    if (esSegundaInstancia) {
+      message.warning("Mesa en segunda ronda: El cupo de bonificaciones ya fue consumido en el ticket anterior.");
+    }
+
+    let creditos100 = esSegundaInstancia ? 0 : Math.floor(personasEditables / 2);
+    let creditos50 = esSegundaInstancia ? 0 : (personasEditables % 2 === 1 ? 1 : 0);
 
     const nuevasBonificaciones: Record<string, { b100: number; b50: number }> = {};
     items.forEach(item => {
@@ -793,78 +806,81 @@ export function CuentaModal({
         </div>
       ) : (
         <Space direction="vertical" style={{ width: "100%" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "16px", width: "100%", marginBottom: "8px" }}>
-            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px" }}>
-              {operacionActual && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Personas:</Typography.Text>
-                  {esSoloLectura ? (
-                    <Typography.Text strong>{personasEditables}</Typography.Text>
-                  ) : (
-                    <InputNumber
-                      min={1}
-                      value={personasEditables}
-                      onChange={handlePersonasChange}
-                    />
-                  )}
-                </div>
-              )}
-              {operacionActual && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
-                  <Select
-                    value={mozoEditado}
-                    disabled={esSoloLectura}
-                    onChange={(val) => {
-                      setMozoEditado(val);
-                      setHayCambios(true);
-                    }}
-                    style={{ minWidth: 150, width: "100%" }}
-                    options={mozos
-                      .filter((m) => m.activo !== false)
-                      .map((m) => ({
-                        value: m.id,
-                        label: m.nombre,
-                      }))}
+          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px", width: "100%", marginBottom: "16px" }}>
+            {operacionActual && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Typography.Text style={{ whiteSpace: "nowrap" }}>Personas:</Typography.Text>
+                {esSoloLectura ? (
+                  <Typography.Text strong>{personasEditables}</Typography.Text>
+                ) : (
+                  <InputNumber
+                    min={1}
+                    value={personasEditables}
+                    onChange={handlePersonasChange}
                   />
-                </div>
-              )}
-              {operacionActual && (
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo 2:</Typography.Text>
-                  <Select
-                    value={mozoEditado2}
-                    disabled={esSoloLectura}
-                    onChange={(val) => {
-                      setMozoEditado2(val);
-                      setHayCambios(true);
-                    }}
-                    allowClear
-                    placeholder="Sin Apoyo"
-                    style={{ minWidth: 150, width: "100%" }}
-                    options={mozos
-                      .filter((m) => m.activo !== false && m.id !== mozoEditado)
-                      .map((m) => ({
-                        value: m.id,
-                        label: m.nombre,
-                      }))}
-                  />
-                </div>
-              )}
-            </div>
+                )}
+              </div>
+            )}
+            {operacionActual && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
+                <Select
+                  value={mozoEditado}
+                  disabled={esSoloLectura}
+                  onChange={(val) => {
+                    setMozoEditado(val);
+                    setHayCambios(true);
+                  }}
+                  style={{ minWidth: 120, width: "100%" }}
+                  options={mozos
+                    .filter((m) => m.activo !== false)
+                    .map((m) => ({
+                      value: m.id,
+                      label: m.nombre,
+                    }))}
+                />
+              </div>
+            )}
+            {operacionActual && (
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo 2:</Typography.Text>
+                <Select
+                  value={mozoEditado2}
+                  disabled={esSoloLectura}
+                  onChange={(val) => {
+                    setMozoEditado2(val);
+                    setHayCambios(true);
+                  }}
+                  allowClear
+                  placeholder="Sin Apoyo"
+                  style={{ minWidth: 120, width: "100%" }}
+                  options={mozos
+                    .filter((m) => m.activo !== false && m.id !== mozoEditado)
+                    .map((m) => ({
+                      value: m.id,
+                      label: m.nombre,
+                    }))}
+                />
+              </div>
+            )}
 
-            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginLeft: "auto", flexWrap: "wrap" }}>
               <Tag color="blue" style={{ fontSize: "14px", padding: "4px 8px", margin: 0 }}>
                 Bonificaciones Restantes: {creditosRestantes / 2}
               </Tag>
-              <Button
-                type="dashed"
-                icon={<ThunderboltOutlined />}
-                onClick={aplicarBonificacionesSugeridas}
-                disabled={esSoloLectura || personasEditables === 0}
-              >
-                Aplicar Sugeridas
-              </Button>
+              {items.some(item => bebidas.find(b => b.id === item.bebida_id)?.es_bonificable) && (
+                <Tooltip title={esSegundaInstancia ? "Segunda instancia: sin cupo" : ""}>
+                  <Button
+                    type="dashed"
+                    icon={<ThunderboltOutlined />}
+                    onClick={aplicarBonificacionesSugeridas}
+                    disabled={esSoloLectura || (!esSegundaInstancia && creditosRestantes <= 0)}
+                    danger={esSegundaInstancia}
+                  >
+                    Aplicar Sugeridas
+                  </Button>
+                </Tooltip>
+              )}
             </div>
           </div>
           <Table

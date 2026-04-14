@@ -44,6 +44,18 @@ export function MapaMesas() {
     return mozo1;
   };
 
+  const getMesaTitle = (op: any) => {
+    const opsMesa = operacionesActivas
+      .filter((o) => o.numero_mesa === op.numero_mesa)
+      .sort((a, b) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime());
+
+    const index = opsMesa.findIndex((o) => o.id === op.id);
+    if (index > 0) {
+      return `Mesa ${op.numero_mesa} (${index + 1})`;
+    }
+    return `Mesa ${op.numero_mesa}`;
+  };
+
   const mesasFiltradas = operacionesActivas
     .filter((op) => {
       const cumpleEstado = filtroEstado ? op.estado === filtroEstado : true;
@@ -112,7 +124,7 @@ export function MapaMesas() {
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <div style={{ textAlign: "left" }}>
                       <Typography.Title level={4} style={{ margin: 0 }}>
-                        Mesa {op.numero_mesa}
+                        {getMesaTitle(op)}
                       </Typography.Title>
                     </div>
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px", marginBottom: "4px" }}>
@@ -190,12 +202,19 @@ export function MapaMesas() {
                   
                   {/* Resumen Bonificaciones */}
                   {(() => {
-                     const creditosTotales = op.cantidad_personas || 0;
+                     const opsMesa = operacionesActivas
+                       .filter((o) => o.numero_mesa === op.numero_mesa)
+                       .sort((a, b) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime());
+                     const esSegundaInstancia = opsMesa.findIndex((o) => o.id === op.id) > 0;
+
+                     const creditosTotales = esSegundaInstancia ? 0 : (op.cantidad_personas || 0);
                      const creditosGastados = (op.items_operacion || []).reduce((acc: number, item: any) => {
                          return acc + ((item.cantidad_bonificada_100 || 0) * 2) + ((item.cantidad_bonificada_50 || 0) * 1);
                      }, 0);
-                     const creditosRestantes = creditosTotales - creditosGastados;
-                     if (creditosTotales > 0) {
+                     
+                     const creditosRestantes = esSegundaInstancia ? 0 : (creditosTotales - creditosGastados);
+                     
+                     if (op.cantidad_personas && op.cantidad_personas > 0) {
                         const creditos = creditosRestantes / 2;
                         return (
                            <Typography.Text style={{ fontSize: "12px", color: op.estado === "Pagada" ? "#6b7280" : "#94a3b8" }}>
