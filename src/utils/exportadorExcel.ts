@@ -30,11 +30,29 @@ export function generarExcelCierre(operaciones: any[], bebidas: any[], mozos: an
   const dataCaja = Array.from(cajaMap.values());
 
   // --- REPORTE 3: MOZOS ---
+  // 1. Pre-agrupamiento global de operaciones por sesión de mesa
+  const sesionesAgrupadas = Object.values(
+    operaciones.reduce((acc: any, op: any) => {
+      const key = `${op.numero_mesa}-${op.mozo_id}-${op.mozo_id_2 || 'solo'}`;
+      if (!acc[key]) {
+        acc[key] = {
+          numero_mesa: op.numero_mesa,
+          mozo_id: op.mozo_id,
+          mozo_id_2: op.mozo_id_2,
+          max_personas: op.cantidad_personas || 0,
+        };
+      } else {
+        acc[key].max_personas = Math.max(acc[key].max_personas, op.cantidad_personas || 0);
+      }
+      return acc;
+    }, {})
+  );
+
   const mozosMap = new Map();
-  operaciones.forEach(op => { // Aquí contamos todas las mesas atendidas, incluso si hubo descuentos totales
-    const totalPersonas = op.cantidad_personas || 0;
-    const mozo1Id = op.mozo_id;
-    const mozo2Id = op.mozo_id_2;
+  sesionesAgrupadas.forEach((sesion: any) => {
+    const totalPersonas = sesion.max_personas;
+    const mozo1Id = sesion.mozo_id;
+    const mozo2Id = sesion.mozo_id_2;
 
     if (mozo2Id) {
       const nombreMozo1 = mozos.find(m => m.id === mozo1Id)?.nombre || 'Desconocido 1';

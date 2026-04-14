@@ -4,6 +4,7 @@ import {
   CreditCardOutlined,
   QrcodeOutlined,
   ReconciliationOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import { cerrarJornadaDb } from "../services/operacionesService";
@@ -77,22 +78,44 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
     .reduce((acc, op) => acc + (op.total_neto || 0), 0);
 
   // --- Sección Rendimiento ---
+  // 1. Pre-agrupamiento global de operaciones por sesión de mesa
+  const sesionesAgrupadas = Object.values(
+    operacionesActivas.reduce((acc: any, op: any) => {
+      const key = `${op.numero_mesa}-${op.mozo_id}-${op.mozo_id_2 || 'solo'}`;
+      if (!acc[key]) {
+        acc[key] = {
+          numero_mesa: op.numero_mesa,
+          mozo_id: op.mozo_id,
+          mozo_id_2: op.mozo_id_2,
+          max_personas: op.cantidad_personas || 0,
+          activa: op.estado === "Abierta",
+        };
+      } else {
+        // En una misma sesión, siempre usamos el máximo de personas registrado
+        acc[key].max_personas = Math.max(acc[key].max_personas, op.cantidad_personas || 0);
+        // Si al menos una operación de la sesión está abierta, se cuenta como activa
+        if (op.estado === "Abierta") acc[key].activa = true;
+      }
+      return acc;
+    }, {})
+  );
+
   const estadisticasMozos = mozos.map((mozo) => {
     let mesasTotales = 0;
     let cubiertosTotales = 0;
     let mesasActivas = 0;
     let cubiertosActivos = 0;
 
-    operacionesActivas.forEach((op) => {
-      if (op.mozo_id !== mozo.id && op.mozo_id_2 !== mozo.id) return;
+    sesionesAgrupadas.forEach((sesion: any) => {
+      if (sesion.mozo_id !== mozo.id && sesion.mozo_id_2 !== mozo.id) return;
 
-      const personasTotales = op.cantidad_personas || 0;
+      const personasTotales = sesion.max_personas;
       let cubiertosParaMozo = 0;
 
-      if (op.mozo_id_2) { // mesa compartida
-        if (op.mozo_id === mozo.id) {
+      if (sesion.mozo_id_2) { // mesa compartida
+        if (sesion.mozo_id === mozo.id) {
           cubiertosParaMozo = Math.ceil(personasTotales / 2);
-        } else if (op.mozo_id_2 === mozo.id) {
+        } else if (sesion.mozo_id_2 === mozo.id) {
           cubiertosParaMozo = Math.floor(personasTotales / 2);
         }
       } else { // mesa de 1 mozo
@@ -102,7 +125,7 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
       mesasTotales += 1;
       cubiertosTotales += cubiertosParaMozo;
 
-      if (op.estado === "Abierta") {
+      if (sesion.activa) {
         mesasActivas += 1;
         cubiertosActivos += cubiertosParaMozo;
       }
@@ -197,6 +220,19 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
           {jornadaSeleccionada?.estado === 'abierta' && (
             <Button key="cerrarJornada" type="primary" danger onClick={handleCerrarJornada}>
               Cerrar Jornada y Descargar Excel
+            </Button>
+          )}
+          {jornadaSeleccionada?.estado === 'cerrada' && (
+            <Button 
+              key="descargarExcel" 
+              type="primary" 
+              icon={<DownloadOutlined />} 
+              onClick={() => {
+                generarExcelCierre(operacionesActivas, bebidas, mozos, jornadaSeleccionada.fecha);
+                message.success("Reporte histórico descargado.");
+              }}
+            >
+              Descargar Excel Histórico
             </Button>
           )}
         </div>
