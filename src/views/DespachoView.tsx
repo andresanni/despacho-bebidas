@@ -273,7 +273,7 @@ export function DespachoView() {
               icon={<ThunderboltOutlined />}
               onClick={aplicarBonificacionesMasivas}
             >
-              Bonificar Salón
+              Bonificaciones Automáticas
             </Button>
             <Button
               icon={<SettingOutlined />}

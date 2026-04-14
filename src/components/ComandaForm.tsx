@@ -359,8 +359,8 @@ export function ComandaForm() {
           block
           loading={enviando}
           style={{
-            height: "50px",
-            fontSize: "1.1rem",
+            height: "42px",
+            fontSize: "0.95rem",
             marginTop: "1rem",
             width: "100%",
             fontWeight: "bold",
