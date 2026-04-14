@@ -146,14 +146,14 @@ export function MapaMesas() {
                 }
                 style={{
                   backgroundColor: "#171f2c",
-                  borderColor: op.estado === "Pagada" ? "#155e75" : "#1e293b",
+                  borderColor: op.estado === "Pagada" ? "#4b5563" : "#1e293b",
                   opacity: op.estado === "Pagada" ? 0.85 : 1,
                 }}
                 styles={{ body: { padding: "10px 12px 12px" } }}
               >
                 {/* Fila 1: Mozo e Importe */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.2rem" }}>
-                  <Typography.Text style={{ fontSize: "14px", fontWeight: 600, color: "#f8f9fa" }}>
+                  <Typography.Text style={{ fontSize: "14px", fontWeight: 600, color: op.estado === "Pagada" ? "#6b7280" : "#f8f9fa" }}>
                     {getMozoNombre(op.mozo_id, op.mozo_id_2)}
                   </Typography.Text>
                   
@@ -168,7 +168,7 @@ export function MapaMesas() {
 
                         if (totalVivo > 0) {
                           return (
-                            <Typography.Text style={{ fontSize: "16px", fontWeight: "bold", color: '#0e7490' }}>
+                            <Typography.Text style={{ fontSize: "16px", fontWeight: "bold", color: op.estado === "Pagada" ? "#6b7280" : '#0e7490' }}>
                               $ {totalVivo.toLocaleString('es-AR')}
                             </Typography.Text>
                           );
@@ -182,11 +182,29 @@ export function MapaMesas() {
                   </div>
                 </div>
 
-                {/* Fila 2: Personas */}
-                <div style={{ marginBottom: "0.25rem", textAlign: "center" }}>
-                  <Typography.Text style={{ fontSize: "15px", color: "#cbd5e1", fontWeight: 500 }}>
+                {/* Fila 2: Personas y Bonificaciones */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "0.15rem", alignItems: "center", marginBottom: "0.5rem" }}>
+                  <Typography.Text style={{ fontSize: "15px", color: op.estado === "Pagada" ? "#6b7280" : "#cbd5e1", fontWeight: 500 }}>
                     {op.cantidad_personas || "-"} personas
                   </Typography.Text>
+                  
+                  {/* Resumen Bonificaciones */}
+                  {(() => {
+                     const creditosTotales = op.cantidad_personas || 0;
+                     const creditosGastados = (op.items_operacion || []).reduce((acc: number, item: any) => {
+                         return acc + ((item.cantidad_bonificada_100 || 0) * 2) + ((item.cantidad_bonificada_50 || 0) * 1);
+                     }, 0);
+                     const creditosRestantes = creditosTotales - creditosGastados;
+                     if (creditosTotales > 0) {
+                        const creditos = creditosRestantes / 2;
+                        return (
+                           <Typography.Text style={{ fontSize: "12px", color: op.estado === "Pagada" ? "#6b7280" : "#94a3b8" }}>
+                              ✨ Disp: {creditos}
+                           </Typography.Text>
+                        );
+                     }
+                     return null;
+                  })()}
                 </div>
 
                 <Button

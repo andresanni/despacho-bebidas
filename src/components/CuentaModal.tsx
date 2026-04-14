@@ -793,77 +793,79 @@ export function CuentaModal({
         </div>
       ) : (
         <Space direction="vertical" style={{ width: "100%" }}>
-          <Space size="large">
-            {operacionActual && (
-              <Space>
-                <Typography.Text>Personas:</Typography.Text>
-                {esSoloLectura ? (
-                  <Typography.Text strong>{personasEditables}</Typography.Text>
-                ) : (
-                  <InputNumber
-                    min={1}
-                    value={personasEditables}
-                    onChange={handlePersonasChange}
+          <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "space-between", alignItems: "center", gap: "16px", width: "100%", marginBottom: "8px" }}>
+            <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px" }}>
+              {operacionActual && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Personas:</Typography.Text>
+                  {esSoloLectura ? (
+                    <Typography.Text strong>{personasEditables}</Typography.Text>
+                  ) : (
+                    <InputNumber
+                      min={1}
+                      value={personasEditables}
+                      onChange={handlePersonasChange}
+                    />
+                  )}
+                </div>
+              )}
+              {operacionActual && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
+                  <Select
+                    value={mozoEditado}
+                    disabled={esSoloLectura}
+                    onChange={(val) => {
+                      setMozoEditado(val);
+                      setHayCambios(true);
+                    }}
+                    style={{ minWidth: 150, width: "100%" }}
+                    options={mozos
+                      .filter((m) => m.activo !== false)
+                      .map((m) => ({
+                        value: m.id,
+                        label: m.nombre,
+                      }))}
                   />
-                )}
-              </Space>
-            )}
-            {operacionActual && (
-              <Space>
-                <Typography.Text>Mozo:</Typography.Text>
-                <Select
-                  value={mozoEditado}
-                  disabled={esSoloLectura}
-                  onChange={(val) => {
-                    setMozoEditado(val);
-                    setHayCambios(true);
-                  }}
-                  style={{ width: 150 }}
-                  options={mozos
-                    .filter((m) => m.activo !== false)
-                    .map((m) => ({
-                      value: m.id,
-                      label: m.nombre,
-                    }))}
-                />
-              </Space>
-            )}
-            {operacionActual && (
-              <Space>
-                <Typography.Text>Mozo 2:</Typography.Text>
-                <Select
-                  value={mozoEditado2}
-                  disabled={esSoloLectura}
-                  onChange={(val) => {
-                    setMozoEditado2(val);
-                    setHayCambios(true);
-                  }}
-                  allowClear
-                  placeholder="Sin Apoyo"
-                  style={{ width: 150 }}
-                  options={mozos
-                    .filter((m) => m.activo !== false && m.id !== mozoEditado)
-                    .map((m) => ({
-                      value: m.id,
-                      label: m.nombre,
-                    }))}
-                />
-              </Space>
-            )}
-            <Tag color="blue" style={{ fontSize: "14px", padding: "4px 8px" }}>
-              Bonificaciones Restantes: {creditosRestantes / 2}
-            </Tag>
-          </Space>
+                </div>
+              )}
+              {operacionActual && (
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo 2:</Typography.Text>
+                  <Select
+                    value={mozoEditado2}
+                    disabled={esSoloLectura}
+                    onChange={(val) => {
+                      setMozoEditado2(val);
+                      setHayCambios(true);
+                    }}
+                    allowClear
+                    placeholder="Sin Apoyo"
+                    style={{ minWidth: 150, width: "100%" }}
+                    options={mozos
+                      .filter((m) => m.activo !== false && m.id !== mozoEditado)
+                      .map((m) => ({
+                        value: m.id,
+                        label: m.nombre,
+                      }))}
+                  />
+                </div>
+              )}
+            </div>
 
-          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
-            <Button
-              type="dashed"
-              icon={<ThunderboltOutlined />}
-              onClick={aplicarBonificacionesSugeridas}
-              disabled={esSoloLectura || personasEditables === 0}
-            >
-              Aplicar Sugeridas
-            </Button>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: "8px" }}>
+              <Tag color="blue" style={{ fontSize: "14px", padding: "4px 8px", margin: 0 }}>
+                Bonificaciones Restantes: {creditosRestantes / 2}
+              </Tag>
+              <Button
+                type="dashed"
+                icon={<ThunderboltOutlined />}
+                onClick={aplicarBonificacionesSugeridas}
+                disabled={esSoloLectura || personasEditables === 0}
+              >
+                Aplicar Sugeridas
+              </Button>
+            </div>
           </div>
           <Table
             columns={columnasFinales}
