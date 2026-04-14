@@ -78,20 +78,35 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
 
   // --- Sección Rendimiento ---
   const estadisticasMozos = mozos.map((mozo) => {
-    const opsMozo = operacionesActivas.filter((op) => op.mozo_id === mozo.id);
-    const opsActivas = opsMozo.filter((op) => op.estado === "Abierta");
+    let mesasTotales = 0;
+    let cubiertosTotales = 0;
+    let mesasActivas = 0;
+    let cubiertosActivos = 0;
 
-    const mesasTotales = opsMozo.length;
-    const cubiertosTotales = opsMozo.reduce(
-      (acc, op) => acc + (op.cantidad_personas || 1),
-      0,
-    );
+    operacionesActivas.forEach((op) => {
+      if (op.mozo_id !== mozo.id && op.mozo_id_2 !== mozo.id) return;
 
-    const mesasActivas = opsActivas.length;
-    const cubiertosActivos = opsActivas.reduce(
-      (acc, op) => acc + (op.cantidad_personas || 1),
-      0,
-    );
+      const personasTotales = op.cantidad_personas || 0;
+      let cubiertosParaMozo = 0;
+
+      if (op.mozo_id_2) { // mesa compartida
+        if (op.mozo_id === mozo.id) {
+          cubiertosParaMozo = Math.ceil(personasTotales / 2);
+        } else if (op.mozo_id_2 === mozo.id) {
+          cubiertosParaMozo = Math.floor(personasTotales / 2);
+        }
+      } else { // mesa de 1 mozo
+        cubiertosParaMozo = personasTotales;
+      }
+
+      mesasTotales += 1;
+      cubiertosTotales += cubiertosParaMozo;
+
+      if (op.estado === "Abierta") {
+        mesasActivas += 1;
+        cubiertosActivos += cubiertosParaMozo;
+      }
+    });
 
     return {
       key: mozo.id,

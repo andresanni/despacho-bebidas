@@ -22,6 +22,7 @@ export function ComandaForm() {
   const [form] = Form.useForm();
   const mozos = useAppStore((state) => state.mozos);
   const bebidas = useAppStore((state) => state.bebidas);
+  const mozo1Seleccionado = Form.useWatch("mozo_id", form);
   const jornadaSeleccionada = useAppStore((state) => state.jornadaSeleccionada);
   const operacionesActivas = useAppStore((state) => state.operacionesActivas);
   const setOperacionesActivas = useAppStore(
@@ -40,6 +41,7 @@ export function ComandaForm() {
   );
 
   const [enviando, setEnviando] = useState(false);
+  const [mostrarMozoApoyo, setMostrarMozoApoyo] = useState(false);
   const mesasCaja = useAppStore((state) => state.mesasCaja);
 
   const onFinish = async (values: any) => {
@@ -66,6 +68,7 @@ export function ComandaForm() {
 
       message.success("Comanda registrada");
       form.resetFields();
+      setMostrarMozoApoyo(false);
     } catch (error: any) {
       console.error("Error al registrar comanda:", error);
       message.error(error.message || "Error al intentar registrar la comanda");
@@ -218,6 +221,58 @@ export function ComandaForm() {
             ))}
           </Select>
         </Form.Item>
+
+        {!mostrarMozoApoyo && !esMesaExistente ? (
+          <div style={{ textAlign: "right", marginTop: "-1rem", marginBottom: "1.5rem" }}>
+            <Button 
+              type="link" 
+              onClick={() => setMostrarMozoApoyo(true)}
+              style={{ padding: 0 }}
+            >
+              + Añadir mozo de apoyo
+            </Button>
+          </div>
+        ) : mostrarMozoApoyo ? (
+          <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", marginBottom: "1.5rem" }}>
+            <Form.Item
+              label="Mozo de Apoyo"
+              name="mozo_id_2"
+              style={{ flex: 1, marginBottom: 0 }}
+            >
+              <Select
+                allowClear
+                showSearch
+                size="large"
+                placeholder="Seleccionar mozo de apoyo"
+                disabled={esMesaExistente}
+                filterOption={(input, option) =>
+                  (option?.children as unknown as string ?? "")
+                    .toLowerCase()
+                    .includes(input.toLowerCase())
+                }
+              >
+                {mozosActivos
+                  .filter(m => m.id !== mozo1Seleccionado)
+                  .map((mozo) => (
+                  <Select.Option key={mozo.id} value={mozo.id}>
+                    {mozo.nombre}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Form.Item>
+            <Button
+              type="text"
+              danger
+              onClick={() => {
+                setMostrarMozoApoyo(false);
+                form.setFieldValue("mozo_id_2", undefined);
+              }}
+              style={{ height: "40px" }}
+            >
+              Quitar
+            </Button>
+          </div>
+        ) : null}
 
         <Divider>
           <Text type="secondary">Bebidas</Text>

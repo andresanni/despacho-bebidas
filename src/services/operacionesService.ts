@@ -50,6 +50,7 @@ export async function registrarComanda(
         .from("operaciones")
         .update({
           mozo_id: valoresFormulario.mozo_id,
+          mozo_id_2: valoresFormulario.mozo_id_2 || null,
           cantidad_personas: valoresFormulario.cantidad_personas,
         })
         .eq("id", operacionExistente.id)
@@ -84,6 +85,7 @@ export async function registrarComanda(
         jornada_id: jornadaId,
         numero_mesa: valoresFormulario.numero_mesa,
         mozo_id: valoresFormulario.mozo_id,
+        mozo_id_2: valoresFormulario.mozo_id_2 || null,
         cantidad_personas: valoresFormulario.cantidad_personas,
       })
       .select()

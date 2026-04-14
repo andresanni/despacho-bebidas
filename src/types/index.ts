@@ -29,6 +29,7 @@ export interface Operacion {
   jornada_id: string; // uuid (referencia a Jornada)
   numero_mesa: number;
   mozo_id: string | null; // uuid (referencia a Mozo)
+  mozo_id_2?: string | null; // uuid
   cantidad_personas: number | null;
   estado: EstadoOperacion; // default 'Abierta'
   metodo_pago: MetodoPago;

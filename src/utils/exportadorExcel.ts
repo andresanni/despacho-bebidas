@@ -32,12 +32,37 @@ export function generarExcelCierre(operaciones: any[], bebidas: any[], mozos: an
   // --- REPORTE 3: MOZOS ---
   const mozosMap = new Map();
   operaciones.forEach(op => { // Aquí contamos todas las mesas atendidas, incluso si hubo descuentos totales
-    const nombreMozo = mozos.find(m => m.id === op.mozo_id)?.nombre || 'Desconocido';
-    if (!mozosMap.has(nombreMozo)) {
-      mozosMap.set(nombreMozo, { Mozo: nombreMozo, 'Mesas Atendidas': 0, 'Total Personas': 0 });
+    const totalPersonas = op.cantidad_personas || 0;
+    const mozo1Id = op.mozo_id;
+    const mozo2Id = op.mozo_id_2;
+
+    if (mozo2Id) {
+      const nombreMozo1 = mozos.find(m => m.id === mozo1Id)?.nombre || 'Desconocido 1';
+      const nombreMozo2 = mozos.find(m => m.id === mozo2Id)?.nombre || 'Desconocido 2';
+      
+      const p1 = Math.ceil(totalPersonas / 2);
+      const p2 = Math.floor(totalPersonas / 2);
+
+      if (!mozosMap.has(nombreMozo1)) {
+        mozosMap.set(nombreMozo1, { Mozo: nombreMozo1, 'Mesas Atendidas': 0, 'Total Personas': 0 });
+      }
+      if (!mozosMap.has(nombreMozo2)) {
+        mozosMap.set(nombreMozo2, { Mozo: nombreMozo2, 'Mesas Atendidas': 0, 'Total Personas': 0 });
+      }
+
+      mozosMap.get(nombreMozo1)['Mesas Atendidas'] += 1;
+      mozosMap.get(nombreMozo1)['Total Personas'] += p1;
+
+      mozosMap.get(nombreMozo2)['Mesas Atendidas'] += 1;
+      mozosMap.get(nombreMozo2)['Total Personas'] += p2;
+    } else {
+      const nombreMozo = mozos.find(m => m.id === mozo1Id)?.nombre || 'Desconocido';
+      if (!mozosMap.has(nombreMozo)) {
+        mozosMap.set(nombreMozo, { Mozo: nombreMozo, 'Mesas Atendidas': 0, 'Total Personas': 0 });
+      }
+      mozosMap.get(nombreMozo)['Mesas Atendidas'] += 1;
+      mozosMap.get(nombreMozo)['Total Personas'] += totalPersonas;
     }
-    mozosMap.get(nombreMozo)['Mesas Atendidas'] += 1;
-    mozosMap.get(nombreMozo)['Total Personas'] += (op.cantidad_personas || 0);
   });
   const dataMozos = Array.from(mozosMap.values());
 

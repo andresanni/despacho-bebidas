@@ -35,8 +35,14 @@ export function MapaMesas() {
     setOperacionSeleccionada(null);
   };
 
-  const getMozoNombre = (id: string | null) =>
-    mozos.find((m) => m.id === id)?.nombre || "Sin asignar";
+  const getMozoNombre = (id1: string | null, id2?: string | null) => {
+    const mozo1 = mozos.find((m) => m.id === id1)?.nombre || "Sin asignar";
+    if (id2) {
+      const mozo2 = mozos.find((m) => m.id === id2)?.nombre || "Desconocido";
+      return `${mozo1} & ${mozo2}`;
+    }
+    return mozo1;
+  };
 
   const mesasFiltradas = operacionesActivas
     .filter((op) => {
@@ -148,7 +154,7 @@ export function MapaMesas() {
                 {/* Fila 1: Mozo e Importe */}
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.2rem" }}>
                   <Typography.Text style={{ fontSize: "14px", fontWeight: 600, color: "#f8f9fa" }}>
-                    {getMozoNombre(op.mozo_id)}
+                    {getMozoNombre(op.mozo_id, op.mozo_id_2)}
                   </Typography.Text>
                   
                   {/* Subtotal en Vivo */}

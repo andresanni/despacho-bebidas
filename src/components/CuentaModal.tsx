@@ -50,6 +50,7 @@ export function CuentaModal({
   const [idsAEliminar, setIdsAEliminar] = useState<string[]>([]);
   const [personasEditables, setPersonasEditables] = useState<number>(0);
   const [mozoEditado, setMozoEditado] = useState<string | undefined>(undefined);
+  const [mozoEditado2, setMozoEditado2] = useState<string | undefined>(undefined);
   const [metodoPago, setMetodoPago] = useState<string>("Efectivo");
   const [cobrando, setCobrando] = useState(false);
   const [bebidaExtraId, setBebidaExtraId] = useState<string | null>(null);
@@ -118,6 +119,7 @@ export function CuentaModal({
               setBonificaciones(inicial);
               setPersonasEditables(operacionActual?.cantidad_personas || 0);
               setMozoEditado(operacionActual?.mozo_id || undefined);
+              setMozoEditado2(operacionActual?.mozo_id_2 || undefined);
               setMetodoPago("Efectivo");
               setHayCambios(false);
               setIdsAEliminar([]);
@@ -143,6 +145,7 @@ export function CuentaModal({
       setBonificaciones({});
       setPersonasEditables(0);
       setMozoEditado(undefined);
+      setMozoEditado2(undefined);
       setMetodoPago("Efectivo");
       setHayCambios(false);
       setIdsAEliminar([]);
@@ -324,6 +327,11 @@ export function CuentaModal({
 
         if (mozoEditado && mozoEditado !== operacionActual.mozo_id) {
           payload.mozo_id = mozoEditado;
+          updateOp = true;
+        }
+
+        if (mozoEditado2 !== operacionActual.mozo_id_2) {
+          payload.mozo_id_2 = mozoEditado2 === undefined ? null : mozoEditado2;
           updateOp = true;
         }
 
@@ -813,6 +821,28 @@ export function CuentaModal({
                   style={{ width: 150 }}
                   options={mozos
                     .filter((m) => m.activo !== false)
+                    .map((m) => ({
+                      value: m.id,
+                      label: m.nombre,
+                    }))}
+                />
+              </Space>
+            )}
+            {operacionActual && (
+              <Space>
+                <Typography.Text>Mozo 2:</Typography.Text>
+                <Select
+                  value={mozoEditado2}
+                  disabled={esSoloLectura}
+                  onChange={(val) => {
+                    setMozoEditado2(val);
+                    setHayCambios(true);
+                  }}
+                  allowClear
+                  placeholder="Sin Apoyo"
+                  style={{ width: 150 }}
+                  options={mozos
+                    .filter((m) => m.activo !== false && m.id !== mozoEditado)
                     .map((m) => ({
                       value: m.id,
                       label: m.nombre,
