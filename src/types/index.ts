@@ -21,6 +21,7 @@ export interface Bebida {
   nombre: string;
   precio_actual: number; // numeric(10, 2)
   activo?: boolean; // default true
+  es_bonificable?: boolean; // default false
 }
 
 export interface Operacion {

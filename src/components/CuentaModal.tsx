@@ -13,7 +13,7 @@ import {
   Select,
   Popconfirm,
 } from "antd";
-import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
 import { supabase } from "../lib/supabase";
 import { useAppStore } from "../store/useAppStore";
@@ -165,6 +165,73 @@ export function CuentaModal({
 
   const creditosRestantes = calcularCreditosRestantes();
 
+  // Vigía de Integridad: Resetea bonificaciones si cambian las personas
+  const prevPersonas = useRef(personasEditables);
+  useEffect(() => {
+    if (!visible || loading) {
+      prevPersonas.current = personasEditables;
+      return;
+    }
+    if (prevPersonas.current && prevPersonas.current !== personasEditables) {
+      setBonificaciones((prev) => {
+        // Solo resetar si había bonificaciones
+        const tieneBonificaciones = Object.values(prev).some(b => b.b100 > 0 || b.b50 > 0);
+        if (tieneBonificaciones) {
+          message.info("Comensales modificados. Las bonificaciones se han reiniciado por integridad.");
+        }
+        return {};
+      });
+      setHayCambios(true);
+    }
+    prevPersonas.current = personasEditables;
+  }, [personasEditables, visible, loading]);
+
+  const aplicarBonificacionesSugeridas = () => {
+    let creditos100 = Math.floor(personasEditables / 2);
+    let creditos50 = personasEditables % 2 === 1 ? 1 : 0;
+
+    const nuevasBonificaciones: Record<string, { b100: number; b50: number }> = {};
+    items.forEach(item => {
+      nuevasBonificaciones[item.id] = { b100: 0, b50: 0 };
+    });
+
+    const unidadesDisponibles: { itemId: string; precio: number }[] = [];
+
+    const itemsConBebida = items.map(item => ({
+      ...item,
+      bebida: bebidas.find(b => b.id === item.bebida_id)
+    }));
+
+    const bonificables = itemsConBebida
+      .filter(item => item.bebida?.es_bonificable === true)
+      .sort((a, b) => b.precio_unitario - a.precio_unitario);
+
+    bonificables.forEach(item => {
+      for (let i = 0; i < item.cantidadEditable; i++) {
+        unidadesDisponibles.push({ itemId: item.id, precio: item.precio_unitario });
+      }
+    });
+
+    for (let i = 0; i < unidadesDisponibles.length; i++) {
+      const u = unidadesDisponibles[i];
+      if (creditos100 > 0) {
+        nuevasBonificaciones[u.itemId].b100 += 1;
+        creditos100--;
+        u.itemId = 'USADA';
+      }
+    }
+
+    const restantes = unidadesDisponibles.filter(u => u.itemId !== 'USADA');
+    if (creditos50 > 0 && restantes.length > 0) {
+      nuevasBonificaciones[restantes[0].itemId].b50 += 1;
+      creditos50--;
+    }
+
+    setBonificaciones(nuevasBonificaciones);
+    setHayCambios(true);
+    message.success("Bonificaciones sugeridas aplicadas");
+  };
+
   const handleCantidadChange = (itemId: string, nuevaCantidad: number) => {
     setItems((prev) =>
       prev.map((item) =>
@@ -183,10 +250,6 @@ export function CuentaModal({
   const handlePersonasChange = (val: number | null) => {
     const nuevasPersonas = val || 1;
     setPersonasEditables(nuevasPersonas);
-    setBonificaciones({});
-    message.info(
-      "Comensales modificados. Las bonificaciones se han reiniciado.",
-    );
     setHayCambios(true);
   };
 
@@ -452,6 +515,17 @@ export function CuentaModal({
       title: "Bebida",
       dataIndex: "bebidaNombre",
       key: "bebidaNombre",
+      render: (val: string, record: any) => {
+        const bebida = bebidas.find((b) => b.id === record.bebida_id);
+        return (
+          <Space>
+            {val}
+            {bebida?.es_bonificable && (
+              <span title="Bonificable">✨</span>
+            )}
+          </Space>
+        );
+      },
     },
     {
       title: "Cant.",
@@ -751,6 +825,16 @@ export function CuentaModal({
             </Tag>
           </Space>
 
+          <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: "8px" }}>
+            <Button
+              type="dashed"
+              icon={<ThunderboltOutlined />}
+              onClick={aplicarBonificacionesSugeridas}
+              disabled={esSoloLectura || personasEditables === 0}
+            >
+              Aplicar Sugeridas
+            </Button>
+          </div>
           <Table
             columns={columnasFinales}
             dataSource={dataSource}
@@ -769,7 +853,10 @@ export function CuentaModal({
                 filterOption={(input, option) =>
                   (option?.label ?? '').toString().toLowerCase().includes(input.toLowerCase())
                 }
-                options={bebidas.map(b => ({ value: b.id, label: `${b.nombre} ($${Math.round(b.precio_actual).toLocaleString("es-AR")})` }))}
+                options={bebidas.map(b => ({ 
+                  value: b.id, 
+                  label: `${b.nombre} ${b.es_bonificable ? '✨' : ''} ($${Math.round(b.precio_actual).toLocaleString("es-AR")})` 
+                }))}
               />
               <Button 
                 type="primary" 

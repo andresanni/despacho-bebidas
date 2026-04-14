@@ -11,8 +11,9 @@ import {
   Space,
   message,
   Card,
+  Tag,
 } from "antd";
-import { PlusOutlined, EditOutlined } from "@ant-design/icons";
+import { PlusOutlined, EditOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import { upsertBebida, toggleBebidaActiva } from "../services/catalogoService";
 import type { Bebida } from "../types";
@@ -108,6 +109,15 @@ export function CatalogoView() {
       key: "precio_actual",
       render: (val: number) => `$${val.toFixed(2)}`,
       sorter: (a: Bebida, b: Bebida) => a.precio_actual - b.precio_actual,
+    },
+    {
+      title: "Bonificable",
+      dataIndex: "es_bonificable",
+      key: "es_bonificable",
+      align: "center" as const,
+      render: (es_bonificable: boolean) => (
+        es_bonificable ? <Tag color="gold" icon={<ThunderboltOutlined />}>Sí</Tag> : <span style={{ color: '#64748b' }}>-</span>
+      ),
     },
     {
       title: "Estado",
@@ -221,6 +231,16 @@ export function CatalogoView() {
             valuePropName="checked"
           >
             <Switch checkedChildren="Activo" unCheckedChildren="Pausado" />
+          </Form.Item>
+
+          <Form.Item 
+            name="es_bonificable" 
+            label="¿Es Bonificable?" 
+            valuePropName="checked"
+            initialValue={false}
+            tooltip="Si se activa, esta bebida entrará en el cálculo automático de promociones (Ej: Gaseosas, Aguas)."
+          >
+            <Switch checkedChildren="Sí" unCheckedChildren="No" />
           </Form.Item>
 
           <Button type="primary" htmlType="submit" block loading={guardando}>

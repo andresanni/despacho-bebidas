@@ -5,6 +5,7 @@ export async function upsertBebida(bebida: Partial<Bebida>): Promise<Bebida> {
   const payload = {
     ...bebida,
     id: bebida.id || crypto.randomUUID(), // Genera ID si es nueva
+    es_bonificable: bebida.es_bonificable ?? false,
   };
 
   const { data, error } = await supabase
