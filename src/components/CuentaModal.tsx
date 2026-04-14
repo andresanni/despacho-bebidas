@@ -177,26 +177,42 @@ export function CuentaModal({
 
   const creditosRestantes = calcularCreditosRestantes();
 
-  // Vigía de Integridad: Resetea bonificaciones si cambian las personas
-  const prevPersonas = useRef(personasEditables);
+  // Vigía de Integridad: Resetea bonificaciones si cambian las personas o la cantidad/volumen de items
+  const firmaItems = items.map(i => `${i.id}-${i.cantidadEditable}`).join('|');
+  const prevEstadoMesa = useRef({ personas: personasEditables, firma: firmaItems });
+  const inicializado = useRef(false); // NUEVO ESCUDO
+
   useEffect(() => {
+    // 1. Si está cerrado o cargando, bajamos el escudo y actualizamos la base
     if (!visible || loading) {
-      prevPersonas.current = personasEditables;
+      inicializado.current = false; 
+      prevEstadoMesa.current = { personas: personasEditables, firma: firmaItems };
       return;
     }
-    if (prevPersonas.current && prevPersonas.current !== personasEditables) {
-      setBonificaciones((prev) => {
-        // Solo resetar si había bonificaciones
-        const tieneBonificaciones = Object.values(prev).some(b => b.b100 > 0 || b.b50 > 0);
-        if (tieneBonificaciones) {
-          message.info("Comensales modificados. Las bonificaciones se han reiniciado por integridad.");
-        }
-        return {};
-      });
+
+    // 2. Primer renderizado con los datos ya cargados (Hidratación)
+    if (!inicializado.current) {
+      prevEstadoMesa.current = { personas: personasEditables, firma: firmaItems };
+      inicializado.current = true; // Levantamos el escudo
+      return; // Cortamos la ejecución aquí para no disparar la alarma
+    }
+
+    // 3. A partir de aquí, cualquier cambio sí es intervención humana
+    const cambioPersonas = prevEstadoMesa.current.personas !== personasEditables;
+    const cambioItems = prevEstadoMesa.current.firma !== firmaItems;
+
+    if (cambioPersonas || cambioItems) {
+      const tieneBonificaciones = Object.values(bonificaciones).some(b => b.b100 > 0 || b.b50 > 0);
+      if (tieneBonificaciones) {
+        message.info("Consumos o comensales modificados. Las bonificaciones se han reiniciado por seguridad.");
+      }
+      setBonificaciones({});
       setHayCambios(true);
     }
-    prevPersonas.current = personasEditables;
-  }, [personasEditables, visible, loading]);
+
+    prevEstadoMesa.current = { personas: personasEditables, firma: firmaItems };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [personasEditables, firmaItems, visible, loading]);
 
   const aplicarBonificacionesSugeridas = () => {
     if (esSegundaInstancia) {
@@ -256,10 +272,6 @@ export function CuentaModal({
           : item,
       ),
     );
-    setBonificaciones({});
-    message.info(
-      "Cantidades modificadas. Las bonificaciones se han reiniciado.",
-    );
     setHayCambios(true);
   };
 
@@ -271,11 +283,6 @@ export function CuentaModal({
 
   const handleEliminarItem = (itemId: string) => {
     setItems((prev) => prev.filter((item) => item.id !== itemId));
-    setBonificaciones((prev) => {
-      const nuevas = { ...prev };
-      delete nuevas[itemId];
-      return nuevas;
-    });
     setIdsAEliminar((prev) => [...prev, itemId]);
     setHayCambios(true);
   };

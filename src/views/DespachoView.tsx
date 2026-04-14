@@ -5,9 +5,9 @@ import { useAppStore } from "../store/useAppStore";
 import { ComandaForm } from "../components/ComandaForm";
 import { MapaMesas } from "../components/MapaMesas";
 import { ArqueoDrawer } from "../components/ArqueoDrawer";
-import { getOperacionesConItems } from "../services/operacionesService";
+import { getOperacionesConItems, guardarCambiosCuenta } from "../services/operacionesService";
 import { actualizarUrlCaja } from "../services/jornadasService";
-import { SettingOutlined } from "@ant-design/icons";
+import { SettingOutlined, ThunderboltOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -27,6 +27,8 @@ export function DespachoView() {
   );
   const fetchMesasCaja = useAppStore((state) => state.fetchMesasCaja);
   const verificarCambiosDeCaja = useAppStore((state) => state.verificarCambiosDeCaja);
+  const operacionesActivas = useAppStore((state) => state.operacionesActivas);
+  const bebidas = useAppStore((state) => state.bebidas);
 
 
   const handleOpenConfig = () => {
@@ -52,6 +54,114 @@ export function DespachoView() {
     } finally {
       setGuardandoUrl(false);
     }
+  };
+
+  const aplicarBonificacionesMasivas = () => {
+    if (!jornadaSeleccionada) return;
+
+    const mesasValidas: typeof operacionesActivas = [];
+    
+    operacionesActivas.forEach(op => {
+      if (op.estado !== 'Abierta') return;
+      
+      const opsDeEstaMesa = operacionesActivas
+        .filter(o => o.numero_mesa === op.numero_mesa)
+        .sort((a, b) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime());
+        
+      const esSegundaInstancia = opsDeEstaMesa.findIndex((o) => o.id === op.id) > 0;
+      if (!esSegundaInstancia && (op.cantidad_personas || 0) > 0) {
+        mesasValidas.push(op);
+      }
+    });
+
+    if (mesasValidas.length === 0) {
+      return message.info("No hay mesas válidas o con comensales para bonificar.");
+    }
+
+    Modal.confirm({
+      title: '¿Aplicar bonificaciones automáticas a todas las mesas?',
+      content: `Se procesarán ${mesasValidas.length} mesas abiertas principales.`,
+      okText: 'Sí, aplicar',
+      cancelText: 'Cancelar',
+      onOk: async () => {
+        try {
+          const allItemsToUpdate: any[] = [];
+          let mesasAfectadas = 0;
+
+          mesasValidas.forEach(op => {
+            const personas = op.cantidad_personas || 0;
+            let creditos100 = Math.floor(personas / 2);
+            let creditos50 = personas % 2 === 1 ? 1 : 0;
+            
+            if (creditos100 === 0 && creditos50 === 0) return;
+
+            const itemsDeOp = op.items_operacion || [];
+            
+            const itemsMapeados = itemsDeOp.map(item => ({
+              id: item.id,
+              bebida: bebidas.find(b => b.id === item.bebida_id),
+              cantidad: item.cantidad,
+              precio: item.precio_unitario,
+              b100: 0,
+              b50: 0
+            }));
+
+            const bonificables = itemsMapeados
+              .filter(item => item.bebida?.es_bonificable)
+              .sort((a, b) => b.precio - a.precio);
+
+            const unidadesDisponibles: any[] = [];
+            bonificables.forEach(item => {
+              for (let i = 0; i < item.cantidad; i++) {
+                  unidadesDisponibles.push({ ref: item, precio: item.precio, usada: false });
+              }
+            });
+
+            for (let i = 0; i < unidadesDisponibles.length; i++) {
+              const u = unidadesDisponibles[i];
+              if (creditos100 > 0) {
+                u.ref.b100 += 1;
+                creditos100--;
+                u.usada = true;
+              }
+            }
+
+            const restantes = unidadesDisponibles.filter(u => !u.usada);
+            if (creditos50 > 0 && restantes.length > 0) {
+               restantes[0].ref.b50 += 1;
+               creditos50--;
+            }
+
+            let mesaModificada = false;
+            itemsMapeados.forEach(item => {
+              const original = itemsDeOp.find(i => i.id === item.id);
+              if (original && (original.cantidad_bonificada_100 !== item.b100 || original.cantidad_bonificada_50 !== item.b50)) {
+                  allItemsToUpdate.push({
+                      id: item.id,
+                      cantidad: item.cantidad,
+                      cantidad_bonificada_100: item.b100,
+                      cantidad_bonificada_50: item.b50
+                  });
+                  mesaModificada = true;
+              }
+            });
+            if(mesaModificada) mesasAfectadas++;
+          });
+
+          if (allItemsToUpdate.length > 0) {
+            await guardarCambiosCuenta(allItemsToUpdate, []);
+            const data = await getOperacionesConItems(jornadaSeleccionada.id);
+            if (data) setOperacionesActivas(data as any);
+            message.success(`Se bonificaron ${mesasAfectadas} mesas con éxito.`);
+          } else {
+            message.info("Las mesas ya tienen sus bonificaciones integradas o no disponen de bebidas de cortesía en sus comandas.");
+          }
+        } catch (error) {
+           console.error(error);
+           message.error("Ocurrió un error al aplicar las bonificaciones masivas.");
+        }
+      }
+    });
   };
 
   useEffect(() => {
@@ -159,6 +269,12 @@ export function DespachoView() {
             Mesas Activas
           </Title>
           <Space>
+            <Button
+              icon={<ThunderboltOutlined />}
+              onClick={aplicarBonificacionesMasivas}
+            >
+              Bonificar Salón
+            </Button>
             <Button
               icon={<SettingOutlined />}
               onClick={handleOpenConfig}
