@@ -142,6 +142,7 @@ export async function guardarCambiosCuenta(
     cantidad_bonificada_50: number;
   }[],
   idsAEliminar: string[],
+  itemsAInsertar?: any[]
 ): Promise<void> {
   // 1. Eliminar los ítems borrados
   if (idsAEliminar.length > 0) {
@@ -153,7 +154,15 @@ export async function guardarCambiosCuenta(
     if (deleteError) throw deleteError;
   }
 
-  // 2. Actualizar los ítems modificados o intactos
+  // 2. Insertar nuevos items
+  if (itemsAInsertar && itemsAInsertar.length > 0) {
+    const { error: insertError } = await supabase
+      .from("items_operacion")
+      .insert(itemsAInsertar);
+    if (insertError) throw insertError;
+  }
+
+  // 3. Actualizar los ítems modificados o intactos
   if (itemsAActualizar.length > 0) {
     // Usamos Promise.all para ejecutar todos los updates en paralelo
     const updatePromises = itemsAActualizar.map((item) =>

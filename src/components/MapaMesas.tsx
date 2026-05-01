@@ -9,13 +9,14 @@ import {
   Empty,
   Select,
 } from "antd";
-import { CheckCircleOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, PrinterOutlined } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import { CuentaModal } from "./CuentaModal";
 
 export function MapaMesas() {
   const operacionesActivas = useAppStore((state) => state.operacionesActivas);
   const mozos = useAppStore((state) => state.mozos);
+  const ticketsImpresos = useAppStore((state) => state.ticketsImpresos);
 
   const [modalVisible, setModalVisible] = useState(false);
   const [operacionSeleccionada, setOperacionSeleccionada] = useState<
@@ -123,9 +124,16 @@ export function MapaMesas() {
                 title={
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <div style={{ textAlign: "left" }}>
-                      <Typography.Title level={4} style={{ margin: 0 }}>
-                        {getMesaTitle(op)}
-                      </Typography.Title>
+                      <div style={{ display: "flex", alignItems: "center" }}>
+                        <Typography.Title level={4} style={{ margin: 0 }}>
+                          {getMesaTitle(op)}
+                        </Typography.Title>
+                        {ticketsImpresos.includes(op.id) && (
+                          <span title="Ticket Impreso" style={{ marginLeft: "20px", color: op.estado === "Pagada" ? "#475569" : "#64748b" }}>
+                            <PrinterOutlined style={{ fontSize: "16px" }} />
+                          </span>
+                        )}
+                      </div>
                     </div>
                     <div style={{ display: "flex", justifyContent: "flex-end", marginTop: "4px", marginBottom: "4px" }}>
                       {(() => {

@@ -14,7 +14,7 @@ import {
   Popconfirm,
   Tooltip,
 } from "antd";
-import { DeleteOutlined, PlusOutlined, ThunderboltOutlined } from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined, ThunderboltOutlined, PrinterOutlined } from "@ant-design/icons";
 import { useReactToPrint } from "react-to-print";
 import { supabase } from "../lib/supabase";
 import { useAppStore } from "../store/useAppStore";
@@ -62,6 +62,7 @@ export function CuentaModal({
   const setOperacionesActivas = useAppStore(
     (state) => state.setOperacionesActivas,
   );
+  const marcarTicketImpreso = useAppStore((state) => state.marcarTicketImpreso);
   const mozos = useAppStore((state) => state.mozos);
 
   const operacionActual = operacionesActivas.find(
@@ -311,7 +312,7 @@ export function CuentaModal({
     });
   };
 
-  const ejecutarGuardado = async () => {
+  const ejecutarGuardado = async (): Promise<boolean> => {
     try {
       setGuardando(true);
 
@@ -326,15 +327,31 @@ export function CuentaModal({
         setHayCambios(false);
         setIdsAEliminar([]);
         onClose();
-        return;
+        return true;
       }
 
-      const itemsAActualizar = items.map((item) => ({
-        id: item.id,
-        cantidad: item.cantidadEditable,
-        cantidad_bonificada_100: bonificaciones[item.id]?.b100 || 0,
-        cantidad_bonificada_50: bonificaciones[item.id]?.b50 || 0,
-      }));
+      const itemsAActualizar: any[] = [];
+      const itemsAInsertar: any[] = [];
+
+      items.forEach((item) => {
+        if (item.id.startsWith("temp-")) {
+          itemsAInsertar.push({
+            operacion_id: operacionActual!.id,
+            bebida_id: item.bebida_id,
+            cantidad: item.cantidadEditable,
+            precio_unitario: item.precio_unitario,
+            cantidad_bonificada_100: bonificaciones[item.id]?.b100 || 0,
+            cantidad_bonificada_50: bonificaciones[item.id]?.b50 || 0,
+          });
+        } else {
+          itemsAActualizar.push({
+            id: item.id,
+            cantidad: item.cantidadEditable,
+            cantidad_bonificada_100: bonificaciones[item.id]?.b100 || 0,
+            cantidad_bonificada_50: bonificaciones[item.id]?.b50 || 0,
+          });
+        }
+      });
 
       if (operacionActual) {
         const payload: any = {};
@@ -373,7 +390,7 @@ export function CuentaModal({
         }
       }
 
-      await guardarCambiosCuenta(itemsAActualizar, idsAEliminar);
+      await guardarCambiosCuenta(itemsAActualizar, idsAEliminar, itemsAInsertar);
 
       if (jornadaSeleccionada) {
         const dataRefrescada = await getOperacionesConItems(jornadaSeleccionada.id);
@@ -383,29 +400,59 @@ export function CuentaModal({
       message.success("Cambios guardados correctamente");
       setHayCambios(false);
       setIdsAEliminar([]);
+      return true;
     } catch (error: any) {
       console.error("Error al guardar:", error);
       message.error(error.message || "Error al guardar los cambios");
+      return false;
     } finally {
       setGuardando(false);
     }
   };
 
-  const handleGuardarCambios = () => {
-    if (operacionActual && mozoEditado && mozoEditado !== operacionActual.mozo_id) {
-      const mozoViejo = mozos.find((m) => m.id === operacionActual.mozo_id)?.nombre || "Sin mozo";
-      const mozoNuevo = mozos.find((m) => m.id === mozoEditado)?.nombre || "Sin mozo";
+  const handleGuardarCambios = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if (operacionActual && mozoEditado && mozoEditado !== operacionActual.mozo_id) {
+        const mozoViejo = mozos.find((m) => m.id === operacionActual.mozo_id)?.nombre || "Sin mozo";
+        const mozoNuevo = mozos.find((m) => m.id === mozoEditado)?.nombre || "Sin mozo";
 
-      Modal.confirm({
-        title: "¿Transferir Mesa?",
-        content: `¿Confirmas que quieres pasar esta mesa de ${mozoViejo} a ${mozoNuevo}?`,
-        okText: "Sí, transferir",
-        cancelText: "Cancelar",
-        onOk: ejecutarGuardado,
-      });
-    } else {
-      ejecutarGuardado();
+        Modal.confirm({
+          title: "¿Transferir Mesa?",
+          content: `¿Confirmas que quieres pasar esta mesa de ${mozoViejo} a ${mozoNuevo}?`,
+          okText: "Sí, transferir",
+          cancelText: "Cancelar",
+          onOk: async () => {
+            const result = await ejecutarGuardado();
+            resolve(result);
+          },
+          onCancel: () => {
+            resolve(false);
+          }
+        });
+      } else {
+        ejecutarGuardado().then(resolve);
+      }
+    });
+  };
+
+  const ejecutarConVigia = (accionCallback: () => void) => {
+    if (!hayCambios) {
+      accionCallback();
+      return;
     }
+
+    Modal.confirm({
+      title: 'Tienes cambios sin guardar',
+      content: '¿Deseas guardar los cambios en la cuenta antes de continuar?',
+      okText: 'Guardar y Continuar',
+      cancelText: 'Seguir editando',
+      onOk: async () => {
+        const exito = await handleGuardarCambios();
+        if (exito !== false) {
+          accionCallback();
+        }
+      }
+    });
   };
 
   const handleAnularMesa = async () => {
@@ -457,59 +504,36 @@ export function CuentaModal({
     }
   };
 
-  const handleAgregarExtra = async () => {
+  const handleAgregarExtra = () => {
     if (!bebidaExtraId || !operacionActual) return;
-    try {
-      setAgregandoExtra(true);
-      const bebida = bebidas.find(b => b.id === bebidaExtraId);
-      if (!bebida) return;
-      
-      await agregarItemExtra(operacionActual.id, bebida.id, bebida.precio_actual);
-      
-      setBebidaExtraId(null);
-      
-      if (jornadaSeleccionada) {
-        // Aprovechamos la recarga global de operaciones ya existente para reactividad visual
-        const dataRefrescada = await getOperacionesConItems(jornadaSeleccionada.id);
-        setOperacionesActivas(dataRefrescada as any);
-
-        // LA CLAVE QUE FALTABA: Actualizar la foto local del modal (setear `items` y `bonificaciones`)
-        const operacionActualizada = dataRefrescada.find((op: any) => op.id === operacionActual.id);
-        if (operacionActualizada && operacionActualizada.items_operacion) {
-          // Ordenar los items por ID o creado_en
-          const itemsOrdenados = [...operacionActualizada.items_operacion].sort(
-            (a: any, b: any) => new Date(a.creado_en).getTime() - new Date(b.creado_en).getTime()
-          );
-
-          const dataMapeada = itemsOrdenados.map((item: any) => {
-            // Conservamos la edición local si el ítem ya existía
-            const existente = items.find(i => i.id === item.id);
-            return {
-              ...item,
-              cantidadEditable: existente ? existente.cantidadEditable : item.cantidad,
-            };
-          });
-          setItems(dataMapeada);
-
-          const nuevasBonificaciones: Record<string, { b100: number; b50: number }> = { ...bonificaciones };
-          itemsOrdenados.forEach((item: any) => {
-            if (!nuevasBonificaciones[item.id]) {
-              nuevasBonificaciones[item.id] = {
-                b100: item.cantidad_bonificada_100 || 0,
-                b50: item.cantidad_bonificada_50 || 0,
-              };
-            }
-          });
-          setBonificaciones(nuevasBonificaciones);
-        }
-      }
-      message.success(`${bebida.nombre} agregado a la cuenta`);
-    } catch (error: any) {
-      console.error("Error al agregar extra:", error);
-      message.error("Error al agregar ítem: " + error.message);
-    } finally {
-      setAgregandoExtra(false);
+    
+    const bebida = bebidas.find(b => b.id === bebidaExtraId);
+    if (!bebida) return;
+    
+    const existente = items.find(i => i.bebida_id === bebida.id);
+    
+    if (existente) {
+      setItems(prev => prev.map(item => 
+        item.id === existente.id 
+          ? { ...item, cantidadEditable: item.cantidadEditable + 1 }
+          : item
+      ));
+    } else {
+      const nuevoId = 'temp-' + Date.now();
+      const nuevoItem = {
+        id: nuevoId,
+        bebida_id: bebida.id,
+        cantidad: 0,
+        cantidadEditable: 1,
+        precio_unitario: bebida.precio_actual,
+        creado_en: new Date().toISOString()
+      };
+      setItems(prev => [...prev, nuevoItem]);
     }
+    
+    setBebidaExtraId(null);
+    setHayCambios(true);
+    message.success(`${bebida.nombre} agregado a la cuenta localmente`);
   };
 
   const dataSource = items.map((item) => {
@@ -682,31 +706,22 @@ export function CuentaModal({
     <Modal
       title={<Typography.Title level={4}>Mesa {operacionActual?.numero_mesa}</Typography.Title>}
       open={visible}
-      onCancel={onClose}
+      onCancel={() => ejecutarConVigia(onClose)}
       width={800}
+      style={{ top: 20 }}
       footer={
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {esSoloLectura ? (
-              <>
-                <Button onClick={handlePrint} disabled={cobrando}>
-                  Imprimir Comandera
-                </Button>
-                <Button onClick={handlePrintA4} disabled={cobrando}>
-                  Imprimir (Láser A4)
-                </Button>
-              </>
-            ) : hayCambios ? (
-              null // El botón principal ocupará la derecha
+              <Button icon={<PrinterOutlined />} onClick={() => ejecutarConVigia(() => { operacionActual && marcarTicketImpreso(operacionActual.id); handlePrintA4(); })} disabled={cobrando}>
+                Imprimir Ticket
+              </Button>
             ) : (
               <>
-                <Button onClick={handlePrint} disabled={cobrando}>
-                  Imprimir Comandera
+                <Button icon={<PrinterOutlined />} onClick={() => ejecutarConVigia(() => { operacionActual && marcarTicketImpreso(operacionActual.id); handlePrintA4(); })} disabled={cobrando}>
+                  Imprimir Ticket
                 </Button>
-                <Button onClick={handlePrintA4} disabled={cobrando}>
-                  Imprimir (Láser A4)
-                </Button>
-                {!estaPagada && !isJornadaCerrada && (
+                {!estaPagada && !isJornadaCerrada && !hayCambios && (
                   <Popconfirm
                     title="¿Anular mesa?"
                     description="Se eliminará la comanda completa. Esta acción no se puede deshacer."
@@ -766,37 +781,31 @@ export function CuentaModal({
                               { value: "Efectivo", label: "Efectivo" },
                               { value: "QR", label: "MercadoPago/QR" },
                               { value: "Debito", label: "Débito" },
+                              { value: "Incobrable", label: "Incobrable" },
                             ]}
                           />
                           <Button
                             type="primary"
                             danger
                             loading={cobrando}
-                            onClick={() => handleCobrar()}
+                            onClick={() => {
+                              if (metodoPago === "Incobrable") {
+                                Modal.confirm({
+                                  title: '¿Marcar mesa como Incobrable?',
+                                  content: 'La mesa se cerrará y el importe se registrará como pérdida (Incobrable).',
+                                  okText: 'Sí, registrar pérdida',
+                                  okType: 'danger',
+                                  cancelText: 'Cancelar',
+                                  onOk: () => handleCobrar('Incobrable')
+                                });
+                              } else {
+                                handleCobrar();
+                              }
+                            }}
                           >
                             Cobrar y Cerrar
                           </Button>
                         </Space.Compact>
-                        {operacionActual?.estado === "Abierta" && (
-                          <Button 
-                            danger 
-                            type="dashed" 
-                            disabled={cobrando}
-                            style={{ width: "100%" }}
-                            onClick={() => {
-                              Modal.confirm({
-                                title: '¿Marcar mesa como Incobrable?',
-                                content: 'La mesa se cerrará y el importe se registrará como pérdida (Incobrable).',
-                                okText: 'Sí, registrar pérdida',
-                                okType: 'danger',
-                                cancelText: 'Cancelar',
-                                onOk: () => handleCobrar('Incobrable')
-                              });
-                            }}
-                          >
-                            Marcar como Incobrable (Sin Pago)
-                          </Button>
-                        )}
                       </>
                     )}
                   </>

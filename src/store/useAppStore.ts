@@ -19,6 +19,7 @@ interface AppState {
   itemsOperaciones: ItemOperacion[];
   mesasCaja: MesaCaja[];
   usuario: any | null;
+  ticketsImpresos: (string | number)[];
 
   // Acciones (Setters)
   setUsuario: (user: any) => void;
@@ -31,6 +32,7 @@ interface AppState {
   setItemsOperaciones: (items: ItemOperacion[]) => void;
   fetchMesasCaja: () => Promise<void>;
   verificarCambiosDeCaja: () => Promise<void>;
+  marcarTicketImpreso: (operacionId: string | number) => void;
 }
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -42,6 +44,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   itemsOperaciones: [],
   mesasCaja: [],
   usuario: null,
+  ticketsImpresos: [],
 
   setUsuario: (user) => set({ usuario: user }),
   inicializarAuth: () => {
@@ -59,10 +62,15 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   setMozos: (mozos) => set({ mozos }),
   setBebidas: (bebidas) => set({ bebidas }),
-  setJornadaActiva: (jornadaActiva) => set({ jornadaActiva }),
-  setJornadaSeleccionada: (jornadaSeleccionada) => set({ jornadaSeleccionada }),
+  setJornadaActiva: (jornadaActiva) => set({ jornadaActiva, ticketsImpresos: [] }),
+  setJornadaSeleccionada: (jornadaSeleccionada) => set({ jornadaSeleccionada, ticketsImpresos: [] }),
   setOperacionesActivas: (operacionesActivas) => set({ operacionesActivas }),
   setItemsOperaciones: (itemsOperaciones) => set({ itemsOperaciones }),
+  marcarTicketImpreso: (operacionId) => set((state) => ({ 
+    ticketsImpresos: state.ticketsImpresos.includes(operacionId) 
+      ? state.ticketsImpresos 
+      : [...state.ticketsImpresos, operacionId] 
+  })),
 
   fetchMesasCaja: async () => {
     const { jornadaSeleccionada } = get();
