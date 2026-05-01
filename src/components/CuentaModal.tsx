@@ -24,9 +24,7 @@ import {
   eliminarOperacion,
   getOperacionesConItems,
   anularPagoYReabrir,
-  agregarItemExtra,
 } from "../services/operacionesService";
-import { TicketImpresion } from "./TicketImpresion";
 import { TicketA4 } from "./TicketA4";
 
 interface CuentaModalProps {
@@ -55,7 +53,6 @@ export function CuentaModal({
   const [metodoPago, setMetodoPago] = useState<string>("Efectivo");
   const [cobrando, setCobrando] = useState(false);
   const [bebidaExtraId, setBebidaExtraId] = useState<string | null>(null);
-  const [agregandoExtra, setAgregandoExtra] = useState(false);
 
   const bebidas = useAppStore((state) => state.bebidas);
   const operacionesActivas = useAppStore((state) => state.operacionesActivas);
@@ -83,12 +80,6 @@ export function CuentaModal({
   const esSoloLectura = esModoMuseo || estaPagada;
   const mozoAsignado =
     mozos.find((m) => m.id === operacionActual?.mozo_id)?.nombre || "Sin mozo";
-
-  const componentRef = useRef<HTMLDivElement>(null);
-  const handlePrint = useReactToPrint({
-    contentRef: componentRef,
-    documentTitle: `Ticket_Comandera_${operacionActual?.numero_mesa || "x"}`,
-  });
 
   const ticketA4Ref = useRef<HTMLDivElement>(null);
   const handlePrintA4 = useReactToPrint({
@@ -926,7 +917,6 @@ export function CuentaModal({
                 type="primary" 
                 icon={<PlusOutlined />} 
                 onClick={handleAgregarExtra}
-                loading={agregandoExtra}
                 disabled={!bebidaExtraId}
               >
                 Agregar
@@ -940,15 +930,6 @@ export function CuentaModal({
       )}
 
       {/* Componente Oculto para Impresión */}
-      <TicketImpresion
-        ref={componentRef}
-        operacion={operacionActual}
-        mozoNombre={mozoAsignado}
-        itemsCalculados={dataSource}
-        totalBruto={totalBruto}
-        totalDescuentos={totalDescuentos}
-        totalNeto={totalNeto}
-      />
       <TicketA4
         ref={ticketA4Ref}
         operacion={operacionActual}
