@@ -195,7 +195,7 @@ body {
 
 .comanda-column {
   height: 100%;
-  padding: 24px 0 24px 24px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -207,9 +207,31 @@ body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  padding: 24px 0 24px 24px;
+  padding: 24px;
   background: #08111f;
   overflow: hidden;
+}
+
+.despacho-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-shrink: 0;
+  margin-bottom: 24px;
+  min-width: 0;
+}
+
+.despacho-actions {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 0;
+}
+
+.despacho-actions .ant-btn {
+  height: 44px;
+  padding-inline: 18px;
+  font-size: 15px;
 }
 
 .filter-strip {
@@ -222,6 +244,37 @@ body {
   border: 1px solid #1d2c40;
   border-radius: 8px;
   background: #0d1a2a;
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.filter-strip .ant-select {
+  max-width: 100%;
+}
+
+.historical-mode-panel {
+  width: 100%;
+  max-width: 100%;
+  padding: 96px 28px 52px;
+  text-align: center;
+  border: 1px dashed #21344b;
+  border-radius: 8px;
+  background: #101b2c;
+}
+
+.historical-mode-title {
+  margin-top: 0 !important;
+  color: #e6eef8 !important;
+}
+
+.historical-mode-text {
+  display: block;
+  max-width: 360px;
+  margin: 0 auto;
+  color: #9fb0c5 !important;
+  font-size: 16px;
+  line-height: 1.55;
 }
 
 .mesa-card.ant-card {
@@ -266,23 +319,24 @@ body {
 .cuenta-modal .ant-modal-content {
   border: 1px solid #26384f;
   box-shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
+  padding: 28px 36px 30px;
 }
 
 .cuenta-modal .ant-modal-header {
-  margin-bottom: 16px;
-  padding-bottom: 14px;
+  margin: 0 0 20px;
+  padding: 4px 56px 18px 10px;
   border-bottom: 1px solid #21344b;
 }
 
 .cuenta-modal .ant-modal-title {
-  padding-right: 44px;
+  padding-right: 0;
 }
 
 .cuenta-title {
   display: flex;
   align-items: center;
   justify-content: flex-start;
-  gap: 10px;
+  gap: 14px;
 }
 
 .cuenta-number {
@@ -290,33 +344,103 @@ body {
   color: #f5f9ff !important;
 }
 
-.cuenta-title .ant-tag {
-  margin: 3px 0 0;
-  padding: 3px 10px;
+.cuenta-badges {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-pill.ant-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 34px;
+  margin: 0;
+  padding: 0 14px;
   border: 1px solid #155e75;
+  border-radius: 999px;
   color: #67e8f9;
   background: #0d2535;
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 800;
 }
 
-.control-strip {
-  display: flex;
-  flex-wrap: wrap;
+.personas-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid #21344b;
+  border-radius: 999px;
+  background: #0d1a2a;
+  color: #9fb0c5;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.personas-pill strong {
+  color: #e6eef8;
+  font-size: 15px;
+}
+
+.personas-pill .ant-input-number {
+  width: 58px;
+  border-radius: 999px;
+}
+
+.account-controls-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
+  gap: 14px;
   width: 100%;
-  padding: 12px;
   margin-bottom: 16px;
+}
+
+.account-control-panel {
+  min-width: 0;
+  padding: 14px 16px 16px;
   border: 1px solid #21344b;
   border-radius: 8px;
   background: #0d1a2a;
+}
+
+.panel-label {
+  display: block;
+  margin-bottom: 10px;
+  color: #6f829a !important;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.waiter-controls,
+.bonus-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.waiter-controls {
+  justify-content: flex-start;
+}
+
+.bonus-controls {
+  justify-content: flex-start;
+}
+
+.bonus-panel {
+  background:
+    linear-gradient(135deg, rgba(15, 145, 182, 0.08), transparent 70%),
+    #0d1a2a;
 }
 
 .control-field {
   display: flex;
   align-items: center;
   gap: 8px;
+  min-width: 0;
 }
 
 .control-field .ant-typography {

@@ -102,19 +102,11 @@ export function ComandaForm() {
 
   if (esModoMuseo) {
     return (
-      <div
-        style={{
-          padding: "2rem",
-          textAlign: "center",
-          backgroundColor: "#171f2c",
-          borderRadius: "8px",
-          border: "1px dashed #1e293b",
-        }}
-      >
-        <Typography.Title level={4} style={{ color: "#cbd5e1" }}>
+      <div className="historical-mode-panel">
+        <Typography.Title level={4} className="historical-mode-title">
           Modo Histórico
         </Typography.Title>
-        <Typography.Text style={{ color: "#94a3b8" }}>
+        <Typography.Text className="historical-mode-text">
           Esta jornada está cerrada. No se pueden agregar nuevas comandas.
         </Typography.Text>
       </div>

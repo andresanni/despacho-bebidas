@@ -234,19 +234,11 @@ export function DespachoView() {
         span={16}
         className="mesas-column"
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "1.5rem",
-            flexShrink: 0,
-          }}
-        >
+        <div className="despacho-toolbar">
           <Title level={3} className="view-title">
             Mesas Activas
           </Title>
-          <Space>
+          <Space wrap className="despacho-actions">
             <Button
               icon={<ThunderboltOutlined />}
               onClick={aplicarBonificacionesMasivas}

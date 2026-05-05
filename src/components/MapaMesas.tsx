@@ -72,7 +72,7 @@ export function MapaMesas() {
         width: "100%",
         overflowY: "auto",
         overflowX: "hidden",
-        paddingRight: "2rem",
+        paddingRight: "8px",
         paddingBottom: "16px",
         scrollbarGutter: "stable",
       }}
