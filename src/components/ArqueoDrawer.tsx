@@ -207,6 +207,7 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
 
   return (
     <Drawer
+      className="drawer-panel"
       title="Resumen de Caja y Rendimiento"
       placement="right"
       width={700}
@@ -241,33 +242,41 @@ export function ArqueoDrawer({ visible, onClose }: ArqueoDrawerProps) {
       <Title level={4}>Flujo de Caja {esModoMuseo ? "(Cerrado)" : "(Abierto)"}</Title>
       <Row gutter={[16, 16]} style={{ marginBottom: "2rem" }}>
         <Col span={24}>
+          <div className="cash-hero">
           <Statistic
             title="Recaudación Bruta Final"
             value={totalRecaudado}
             formatter={(val) => `$${Number(val).toLocaleString("es-AR")}`}
             valueStyle={{ color: "#0891b2", fontSize: "2rem" }}
           />
+          </div>
         </Col>
         <Col span={8}>
+          <div className="cash-metric">
           <Statistic
             title="Efectivo"
             value={totalEfectivo}
             formatter={(val) => <><DollarOutlined /> ${Number(val).toLocaleString("es-AR")}</>}
           />
+          </div>
         </Col>
         <Col span={8}>
+          <div className="cash-metric">
           <Statistic
             title="Débito"
             value={totalDebito}
             formatter={(val) => <><CreditCardOutlined /> ${Number(val).toLocaleString("es-AR")}</>}
           />
+          </div>
         </Col>
         <Col span={8}>
+          <div className="cash-metric">
           <Statistic
             title="MercadoPago / QR"
             value={totalQR}
             formatter={(val) => <><QrcodeOutlined /> ${Number(val).toLocaleString("es-AR")}</>}
           />
+          </div>
         </Col>
       </Row>
 

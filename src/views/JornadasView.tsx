@@ -113,16 +113,10 @@ export function JornadasView() {
   ];
 
   return (
-    <div style={{ padding: "2rem", height: "100%", overflowY: "auto" }}>
-      <Card style={{ backgroundColor: "#171f2c", borderColor: "#1e293b" }}>
-        <Space
-          style={{
-            width: "100%",
-            justifyContent: "space-between",
-            marginBottom: "1rem",
-          }}
-        >
-          <Title level={3} style={{ margin: 0 }}>
+    <div className="page-scroll">
+      <Card className="surface-card">
+        <Space className="toolbar-row">
+          <Title level={3} className="view-title">
             Historial de Recaudaciones
           </Title>
           <Button

@@ -78,14 +78,7 @@ export function MapaMesas() {
       }}
     >
       {/* Panel de Filtros */}
-      <div
-        style={{
-          marginBottom: "1.5rem",
-          display: "flex",
-          gap: "1rem",
-          flexWrap: "wrap",
-        }}
-      >
+      <div className="filter-strip">
         <Select
           allowClear
           placeholder="Filtrar por Estado"
@@ -121,6 +114,7 @@ export function MapaMesas() {
           {mesasFiltradas.map((op) => (
             <Col xs={24} sm={12} md={8} lg={6} xl={6} key={op.id}>
               <Card
+                className={`mesa-card ${op.estado === "Pagada" ? "is-paid" : ""}`}
                 title={
                   <div style={{ display: "flex", flexDirection: "column" }}>
                     <div style={{ textAlign: "left" }}>
@@ -165,8 +159,8 @@ export function MapaMesas() {
                   </div>
                 }
                 style={{
-                  backgroundColor: "#171f2c",
-                  borderColor: op.estado === "Pagada" ? "#4b5563" : "#1e293b",
+                  backgroundColor: "#101b2c",
+                  borderColor: op.estado === "Pagada" ? "#3a4b62" : "#21344b",
                   opacity: op.estado === "Pagada" ? 0.85 : 1,
                 }}
                 styles={{ body: { padding: "10px 12px 12px" } }}

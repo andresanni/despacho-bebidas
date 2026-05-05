@@ -123,11 +123,10 @@ export function ComandaForm() {
 
   return (
     <Card
+      className="surface-card"
       style={{
         width: "100%",
         height: "100%",
-        backgroundColor: "transparent",
-        border: "none",
         display: "flex",
         flexDirection: "column",
         overflowX: "hidden",

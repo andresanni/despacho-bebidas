@@ -1,4 +1,4 @@
-import { Layout, Typography, Menu, Spin, Alert, Button, message, ConfigProvider, theme } from "antd";
+import { Layout, Typography, Menu, Spin, Alert, Button, message } from "antd";
 import { Outlet, useNavigate, useLocation } from "react-router-dom";
 import {
   AppstoreOutlined,
@@ -45,74 +45,38 @@ export function MainLayout() {
   ];
 
   return (
-    <Layout style={{ height: "100vh", overflow: "hidden" }}>
-      <Sider width={200} style={{ background: "#0d1421", borderRight: "1px solid #1e293b" }}>
-        <div style={{ padding: "1.5rem 1rem", textAlign: "center" }}>
-          <Title 
-            level={3} 
-            style={{ 
-              color: "#cbd5e1", 
-              margin: 0, 
-              fontWeight: "700",
-              textTransform: "uppercase",
-              fontSize: "20px"
-            }}
-          >
-            MARIA GRACIA
-          </Title>
-          <div style={{ 
-            height: "1px", 
-            background: "#1e293b", 
-            margin: "0.8rem auto 0",
-            width: "100%",
-          }} />
+    <Layout className="app-shell">
+      <Sider width={220} className="app-sider">
+        <div className="brand-block">
+          <div className="brand-mark">
+            <span className="brand-kicker">POS Restaurante</span>
+            <Title level={3} className="brand-title">
+              MARIA GRACIA
+            </Title>
+          </div>
         </div>
-        <ConfigProvider
-          theme={{
-            algorithm: theme.darkAlgorithm,
-            components: {
-              Menu: {
-                itemSelectedBg: "#171f2c",
-                itemSelectedColor: "#ffffff",
-                itemHoverBg: "#171f2c",
-                itemActiveBg: "#171f2c",
-                itemColor: "#94a3b8",
-                itemHoverColor: "#ffffff",
-              }
-            }
-          }}
-        >
-          <Menu
-            mode="inline"
-            selectedKeys={[location.pathname]}
-            onClick={({ key }) => navigate(key)}
-            items={menuItems.map(item => ({ ...item, style: { fontWeight: 500 } }))}
-            style={{ borderRight: 0, background: "#0d1421", marginTop: "1rem" }}
-          />
-        </ConfigProvider>
+        <Menu
+          className="app-menu"
+          mode="inline"
+          selectedKeys={[location.pathname]}
+          onClick={({ key }) => navigate(key)}
+          items={menuItems.map(item => ({ ...item, style: { fontWeight: 600 } }))}
+        />
       </Sider>
 
       <Layout style={{ display: "flex", flexDirection: "column" }}>
-        <Header
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            padding: "0 2rem",
-            borderBottom: "1px solid #1e293b",
-            backgroundColor: "#0d1421",
-          }}
-        >
-          <div /> {/* Espaciador flexible si se requiere */}
+        <Header className="app-header">
           <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
             {jornadaActiva ? (
               <Alert
+                className="status-alert"
                 type="success"
                 message={`✅ Operando (${new Date(jornadaActiva.creado_en).toLocaleDateString()})`}
                 style={{ padding: "4px 12px" }}
               />
             ) : (
               <Alert
+                className="status-alert"
                 type="warning"
                 message="🟠 Visualizando en Modo Histórico (Solo Lectura)"
                 style={{ padding: "4px 12px" }}
@@ -136,16 +100,7 @@ export function MainLayout() {
           </div>
         </Header>
 
-        <Content
-          style={{
-            flex: 1,
-            display: "flex",
-            flexDirection: "column",
-            overflow: "hidden",
-            minHeight: 0,
-            position: "relative",
-          }}
-        >
+        <Content className="app-content">
           {loading && (
             <div
               style={{

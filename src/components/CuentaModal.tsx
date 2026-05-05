@@ -575,9 +575,10 @@ export function CuentaModal({
       dataIndex: "cantidadEditable",
       key: "cantidad",
       width: 80,
+      align: "center" as const,
       render: (_: any, record: any) =>
         esSoloLectura ? (
-          <Typography.Text>{record.cantidadEditable}</Typography.Text>
+          <span className="numeric-cell">{record.cantidadEditable}</span>
         ) : (
           <InputNumber
             min={1}
@@ -590,21 +591,16 @@ export function CuentaModal({
       title: "Bonif. 100%",
       key: "cantidad_bonificada_100",
       width: 100,
+      align: "center" as const,
       render: (_: any, record: any) => {
         const val = bonificaciones[record.id]?.b100 || 0;
         return esSoloLectura ? (
-          val > 0 ? (
-            <Tag color="blue" style={{ fontSize: '14px', margin: 0, minWidth: '32px', textAlign: 'center' }}>
-              {val}
-            </Tag>
-          ) : (
-            <Typography.Text type="secondary">{val}</Typography.Text>
-          )
+          <span className={`bonif-cell ${val > 0 ? "is-active" : ""}`}>{val}</span>
         ) : (
           <InputNumber
+            className={val > 0 ? "bonif-input is-active" : "bonif-input"}
             min={0}
             value={val}
-            style={val > 0 ? { borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)' } : {}}
             onChange={(v) =>
               handleBonifChange(record.id, "b100", v || 0, record.cantidadEditable)
             }
@@ -616,21 +612,16 @@ export function CuentaModal({
       title: "Bonif. 50%",
       key: "cantidad_bonificada_50",
       width: 100,
+      align: "center" as const,
       render: (_: any, record: any) => {
         const val = bonificaciones[record.id]?.b50 || 0;
         return esSoloLectura ? (
-          val > 0 ? (
-            <Tag color="blue" style={{ fontSize: '14px', margin: 0, minWidth: '32px', textAlign: 'center' }}>
-              {val}
-            </Tag>
-          ) : (
-            <Typography.Text type="secondary">{val}</Typography.Text>
-          )
+          <span className={`bonif-cell ${val > 0 ? "is-active" : ""}`}>{val}</span>
         ) : (
           <InputNumber
+            className={val > 0 ? "bonif-input is-active" : "bonif-input"}
             min={0}
             value={val}
-            style={val > 0 ? { borderColor: '#3b82f6', backgroundColor: 'rgba(59, 130, 246, 0.2)' } : {}}
             onChange={(v) =>
               handleBonifChange(record.id, "b50", v || 0, record.cantidadEditable)
             }
@@ -693,9 +684,28 @@ export function CuentaModal({
     });
   };
 
+  const imprimirTicket = () => {
+    if (operacionActual) {
+      marcarTicketImpreso(operacionActual.id);
+    }
+    handlePrintA4();
+  };
+
   return (
     <Modal
-      title={<Typography.Title level={4}>Mesa {operacionActual?.numero_mesa}</Typography.Title>}
+      className="cuenta-modal"
+      title={
+        <div className="cuenta-title">
+          <Typography.Title level={4} className="cuenta-number">
+            Mesa {operacionActual?.numero_mesa}
+          </Typography.Title>
+          {operacionActual?.estado && (
+            <Tag color={operacionActual.estado === "Pagada" ? "cyan" : "green"}>
+              {operacionActual.estado}
+            </Tag>
+          )}
+        </div>
+      }
       open={visible}
       onCancel={() => ejecutarConVigia(onClose)}
       width={800}
@@ -704,12 +714,12 @@ export function CuentaModal({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", width: "100%", gap: "1rem", flexWrap: "wrap", marginTop: "1rem" }}>
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
             {esSoloLectura ? (
-              <Button icon={<PrinterOutlined />} onClick={() => ejecutarConVigia(() => { operacionActual && marcarTicketImpreso(operacionActual.id); handlePrintA4(); })} disabled={cobrando}>
+              <Button icon={<PrinterOutlined />} onClick={() => ejecutarConVigia(imprimirTicket)} disabled={cobrando}>
                 Imprimir Ticket
               </Button>
             ) : (
               <>
-                <Button icon={<PrinterOutlined />} onClick={() => ejecutarConVigia(() => { operacionActual && marcarTicketImpreso(operacionActual.id); handlePrintA4(); })} disabled={cobrando}>
+                <Button icon={<PrinterOutlined />} onClick={() => ejecutarConVigia(imprimirTicket)} disabled={cobrando}>
                   Imprimir Ticket
                 </Button>
                 {!estaPagada && !isJornadaCerrada && !hayCambios && (
@@ -813,9 +823,9 @@ export function CuentaModal({
         </div>
       ) : (
         <Space direction="vertical" style={{ width: "100%" }}>
-          <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: "16px", width: "100%", marginBottom: "16px" }}>
+          <div className="control-strip">
             {operacionActual && (
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div className="control-field">
                 <Typography.Text style={{ whiteSpace: "nowrap" }}>Personas:</Typography.Text>
                 {esSoloLectura ? (
                   <Typography.Text strong>{personasEditables}</Typography.Text>
@@ -829,7 +839,7 @@ export function CuentaModal({
               </div>
             )}
             {operacionActual && (
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div className="control-field">
                 <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
                 <Select
                   value={mozoEditado}
@@ -849,7 +859,7 @@ export function CuentaModal({
               </div>
             )}
             {operacionActual && (
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+              <div className="control-field">
                 <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo 2:</Typography.Text>
                 <Select
                   value={mozoEditado2}
@@ -871,8 +881,8 @@ export function CuentaModal({
               </div>
             )}
 
-            <div style={{ display: "flex", alignItems: "center", gap: "16px", marginLeft: "auto", flexWrap: "wrap" }}>
-              <Tag color="blue" style={{ fontSize: "14px", padding: "4px 8px", margin: 0 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginLeft: "auto", flexWrap: "wrap" }}>
+              <Tag className="credit-tag">
                 Bonificaciones Restantes: {creditosRestantes / 2}
               </Tag>
               {items.some(item => bebidas.find(b => b.id === item.bebida_id)?.es_bonificable) && (
@@ -898,7 +908,7 @@ export function CuentaModal({
           />
           <Divider />
           {operacionActual?.estado === 'Abierta' && (
-            <div style={{ padding: '12px', backgroundColor: '#0f2238', borderRadius: '8px', marginBottom: '16px', display: 'flex', gap: '8px' }}>
+            <div className="add-product-strip">
               <Select
                 showSearch
                 style={{ flex: 1 }}
@@ -923,9 +933,11 @@ export function CuentaModal({
               </Button>
             </div>
           )}
-          <Typography.Title level={3} style={{ textAlign: "right", margin: 0 }}>
-            Total: ${Math.round(totalNeto).toLocaleString("es-AR")}
-          </Typography.Title>
+          <div className="total-line">
+            <Typography.Title level={3} style={{ margin: 0 }}>
+              Total: ${Math.round(totalNeto).toLocaleString("es-AR")}
+            </Typography.Title>
+          </div>
         </Space>
       )}
 

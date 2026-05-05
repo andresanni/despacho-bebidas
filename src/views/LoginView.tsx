@@ -32,21 +32,16 @@ export function LoginView() {
   };
 
   return (
-    <div style={{
-      display: 'flex',
-      justifyContent: 'center',
-      alignItems: 'center',
-      height: '100vh',
-      backgroundColor: '#0d1421'
-    }}>
-      <Card style={{ width: 400, backgroundColor: '#171f2c', borderColor: '#1e293b' }} styles={{ body: { padding: '2rem' } }}>
-        <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
+    <div className="login-shell">
+      <Card className="login-card" styles={{ body: { padding: '2rem' } }}>
+        <div className="login-brand">
+          <span className="login-brand-badge">POS Restaurante</span>
           <Title 
             level={3} 
             style={{ 
-              color: "#cbd5e1", 
+              color: "#f5f9ff", 
               margin: 0, 
-              fontWeight: "700",
+              fontWeight: "800",
               textTransform: "uppercase",
               fontSize: "20px"
             }}
