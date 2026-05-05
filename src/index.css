@@ -319,17 +319,26 @@ body {
 .cuenta-modal .ant-modal-content {
   border: 1px solid #26384f;
   box-shadow: 0 26px 80px rgba(0, 0, 0, 0.42);
-  padding: 28px 36px 30px;
+  padding: 24px 36px 30px;
 }
 
 .cuenta-modal .ant-modal-header {
-  margin: 0 0 20px;
-  padding: 4px 56px 18px 10px;
+  min-height: 70px;
+  margin: 0 0 18px;
+  padding: 0 76px 14px 10px;
   border-bottom: 1px solid #21344b;
+  display: flex;
+  align-items: center;
+}
+
+.cuenta-modal .ant-modal-close {
+  top: 16px;
+  right: 14px;
 }
 
 .cuenta-modal .ant-modal-title {
   padding-right: 0;
+  width: 100%;
 }
 
 .cuenta-title {
@@ -342,6 +351,7 @@ body {
 .cuenta-number {
   margin: 0 !important;
   color: #f5f9ff !important;
+  line-height: 1 !important;
 }
 
 .cuenta-badges {
@@ -390,23 +400,27 @@ body {
 
 .account-controls-grid {
   display: grid;
-  grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 14px;
   width: 100%;
   margin-bottom: 16px;
 }
 
 .account-control-panel {
+  display: flex;
+  align-items: center;
+  gap: 14px;
   min-width: 0;
-  padding: 14px 16px 16px;
+  min-height: 74px;
+  padding: 12px 16px;
   border: 1px solid #21344b;
   border-radius: 8px;
   background: #0d1a2a;
 }
 
 .panel-label {
-  display: block;
-  margin-bottom: 10px;
+  flex: 0 0 98px;
+  margin: 0;
   color: #6f829a !important;
   font-size: 11px;
   font-weight: 800;
@@ -418,12 +432,14 @@ body {
 .bonus-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   flex-wrap: wrap;
+  min-width: 0;
 }
 
 .waiter-controls {
   justify-content: flex-start;
+  flex: 1;
 }
 
 .bonus-controls {
@@ -441,6 +457,23 @@ body {
   align-items: center;
   gap: 8px;
   min-width: 0;
+}
+
+.primary-waiter {
+  flex: 1 1 205px;
+}
+
+.support-waiter {
+  flex: 0 1 154px;
+  opacity: 0.72;
+}
+
+.support-waiter .ant-typography {
+  font-size: 13px;
+}
+
+.support-waiter .ant-select {
+  min-width: 112px !important;
 }
 
 .control-field .ant-typography {

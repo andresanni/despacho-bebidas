@@ -845,7 +845,7 @@ export function CuentaModal({
               <Typography.Text className="panel-label">Responsables</Typography.Text>
               <div className="waiter-controls">
               {operacionActual && (
-                <div className="control-field">
+                <div className="control-field primary-waiter">
                   <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
                   <Select
                     value={mozoEditado}
@@ -854,7 +854,7 @@ export function CuentaModal({
                       setMozoEditado(val);
                       setHayCambios(true);
                     }}
-                    style={{ minWidth: 150, width: "100%" }}
+                    style={{ minWidth: 145, width: "100%" }}
                     options={mozos
                       .filter((m) => m.activo !== false)
                       .map((m) => ({
@@ -865,8 +865,8 @@ export function CuentaModal({
                 </div>
               )}
               {operacionActual && (
-                <div className="control-field">
-                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo 2:</Typography.Text>
+                <div className="control-field support-waiter">
+                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Apoyo:</Typography.Text>
                   <Select
                     value={mozoEditado2}
                     disabled={esSoloLectura}
@@ -876,7 +876,7 @@ export function CuentaModal({
                     }}
                     allowClear
                     placeholder="Sin Apoyo"
-                    style={{ minWidth: 150, width: "100%" }}
+                    style={{ minWidth: 118, width: "100%" }}
                     options={mozos
                       .filter((m) => m.activo !== false && m.id !== mozoEditado)
                       .map((m) => ({
