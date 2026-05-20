@@ -841,75 +841,79 @@ export function CuentaModal({
       ) : (
         <Space direction="vertical" style={{ width: "100%" }}>
           <div className="account-controls-grid">
-            <section className="account-control-panel">
-              <Typography.Text className="panel-label">Responsables</Typography.Text>
-              <div className="waiter-controls">
-              {operacionActual && (
-                <div className="control-field primary-waiter">
-                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
-                  <Select
-                    value={mozoEditado}
-                    disabled={esSoloLectura}
-                    onChange={(val) => {
-                      setMozoEditado(val);
-                      setHayCambios(true);
-                    }}
-                    style={{ minWidth: 145, width: "100%" }}
-                    options={mozos
-                      .filter((m) => m.activo !== false)
-                      .map((m) => ({
-                        value: m.id,
-                        label: m.nombre,
-                      }))}
-                  />
-                </div>
-              )}
-              {operacionActual && (
-                <div className="control-field support-waiter">
-                  <Typography.Text style={{ whiteSpace: "nowrap" }}>Apoyo:</Typography.Text>
-                  <Select
-                    value={mozoEditado2}
-                    disabled={esSoloLectura}
-                    onChange={(val) => {
-                      setMozoEditado2(val);
-                      setHayCambios(true);
-                    }}
-                    allowClear
-                    placeholder="Sin Apoyo"
-                    style={{ minWidth: 118, width: "100%" }}
-                    options={mozos
-                      .filter((m) => m.activo !== false && m.id !== mozoEditado)
-                      .map((m) => ({
-                        value: m.id,
-                        label: m.nombre,
-                      }))}
-                  />
-                </div>
-              )}
-              </div>
-            </section>
-
-            <section className="account-control-panel bonus-panel">
-              <Typography.Text className="panel-label">Bonificaciones</Typography.Text>
-              <div className="bonus-controls">
-                <Tag className="credit-tag">
-                  Restantes: {creditosRestantes / 2}
-                </Tag>
-                {items.some(item => bebidas.find(b => b.id === item.bebida_id)?.es_bonificable) && (
-                  <Tooltip title={esSegundaInstancia ? "Segunda instancia: sin cupo" : ""}>
-                    <Button
-                      type="dashed"
-                      icon={<ThunderboltOutlined />}
-                      onClick={aplicarBonificacionesSugeridas}
-                      disabled={esSoloLectura || (!esSegundaInstancia && creditosRestantes <= 0)}
-                      danger={esSegundaInstancia}
-                    >
-                      Aplicar Sugeridas
-                    </Button>
-                  </Tooltip>
+            <div className="account-section-wrapper">
+              <Typography.Text className="panel-label-top">Responsables</Typography.Text>
+              <section className="account-control-panel">
+                <div className="waiter-controls">
+                {operacionActual && (
+                  <div className="control-field primary-waiter">
+                    <Typography.Text style={{ whiteSpace: "nowrap" }}>Mozo:</Typography.Text>
+                    <Select
+                      value={mozoEditado}
+                      disabled={esSoloLectura}
+                      onChange={(val) => {
+                        setMozoEditado(val);
+                        setHayCambios(true);
+                      }}
+                      style={{ width: "100%", minWidth: "120px" }}
+                      options={mozos
+                        .filter((m) => m.activo !== false)
+                        .map((m) => ({
+                          value: m.id,
+                          label: m.nombre,
+                        }))}
+                    />
+                  </div>
                 )}
-              </div>
-            </section>
+                {operacionActual && (
+                  <div className="control-field support-waiter">
+                    <Select
+                      size="small"
+                      value={mozoEditado2}
+                      disabled={esSoloLectura}
+                      onChange={(val) => {
+                        setMozoEditado2(val);
+                        setHayCambios(true);
+                      }}
+                      allowClear
+                      placeholder="+ Apoyo"
+                      style={{ width: "100%", minWidth: "90px" }}
+                      options={mozos
+                        .filter((m) => m.activo !== false && m.id !== mozoEditado)
+                        .map((m) => ({
+                          value: m.id,
+                          label: m.nombre,
+                        }))}
+                    />
+                  </div>
+                )}
+                </div>
+              </section>
+            </div>
+
+            <div className="account-section-wrapper">
+              <Typography.Text className="panel-label-top">Bonificaciones</Typography.Text>
+              <section className="account-control-panel bonus-panel">
+                <div className="bonus-controls">
+                  <Tag className="credit-tag">
+                    Restantes: {creditosRestantes / 2}
+                  </Tag>
+                  {items.some(item => bebidas.find(b => b.id === item.bebida_id)?.es_bonificable) && (
+                    <Tooltip title={esSegundaInstancia ? "Segunda instancia: sin cupo" : ""}>
+                      <Button
+                        type="dashed"
+                        icon={<ThunderboltOutlined />}
+                        onClick={aplicarBonificacionesSugeridas}
+                        disabled={esSoloLectura || (!esSegundaInstancia && creditosRestantes <= 0)}
+                        danger={esSegundaInstancia}
+                      >
+                        Aplicar Sugeridas
+                      </Button>
+                    </Tooltip>
+                  )}
+                </div>
+              </section>
+            </div>
           </div>
           <Table
             columns={columnasFinales}

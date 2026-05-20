@@ -323,17 +323,17 @@ body {
 }
 
 .cuenta-modal .ant-modal-header {
-  min-height: 70px;
-  margin: 0 0 18px;
-  padding: 0 76px 14px 10px;
+  min-height: 64px;
+  margin: 0 0 16px;
+  padding: 16px 54px 16px 20px;
   border-bottom: 1px solid #21344b;
   display: flex;
   align-items: center;
 }
 
 .cuenta-modal .ant-modal-close {
-  top: 16px;
-  right: 14px;
+  top: 18px;
+  right: 18px;
 }
 
 .cuenta-modal .ant-modal-title {
@@ -401,31 +401,37 @@ body {
 .account-controls-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  gap: 16px;
   width: 100%;
   margin-bottom: 16px;
+}
+
+.account-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
 }
 
 .account-control-panel {
   display: flex;
   align-items: center;
-  gap: 14px;
   min-width: 0;
-  min-height: 74px;
-  padding: 12px 16px;
+  height: 50px;
+  padding: 0 16px;
   border: 1px solid #21344b;
   border-radius: 8px;
   background: #0d1a2a;
 }
 
-.panel-label {
-  flex: 0 0 98px;
+.panel-label-top {
   margin: 0;
   color: #6f829a !important;
   font-size: 11px;
   font-weight: 800;
-  letter-spacing: 0;
+  letter-spacing: 0.5px;
   text-transform: uppercase;
+  padding-left: 4px;
 }
 
 .waiter-controls,
@@ -433,13 +439,13 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   min-width: 0;
+  flex: 1;
 }
 
 .waiter-controls {
   justify-content: flex-start;
-  flex: 1;
 }
 
 .bonus-controls {
@@ -460,20 +466,28 @@ body {
 }
 
 .primary-waiter {
-  flex: 1 1 205px;
+  flex: 1 1 auto;
 }
 
 .support-waiter {
-  flex: 0 1 154px;
-  opacity: 0.72;
+  flex: 0 1 auto;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
 }
 
-.support-waiter .ant-typography {
-  font-size: 13px;
+.support-waiter:hover,
+.support-waiter:focus-within {
+  opacity: 1;
 }
 
-.support-waiter .ant-select {
-  min-width: 112px !important;
+.support-waiter .ant-select-selector {
+  border-color: #1d2c40 !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.support-waiter .ant-select-selection-placeholder {
+  color: #6f829a !important;
+  font-size: 12px;
 }
 
 .control-field .ant-typography {

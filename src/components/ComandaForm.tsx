@@ -126,14 +126,14 @@ export function ComandaForm() {
       styles={{ body: { padding: 0, display: "flex", flexDirection: "column", height: "100%" } }}
     >
       {/* Cabezal fijo */}
-      <div style={{ paddingRight: "1.5rem" }}>
+      <div style={{ padding: "1.5rem 1.5rem 0 1.5rem" }}>
         <Title level={4} style={{ textAlign: "left", marginTop: 0, marginBottom: "1.5rem" }}>
           Nueva Comanda
         </Title>
       </div>
 
       {/* Contenedor del formulario scrolleable */}
-      <div style={{ flex: 1, overflowY: "auto", paddingRight: "1.5rem" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 1.5rem 1.5rem 1.5rem" }}>
       <Form
         form={form}
         layout="vertical"
@@ -142,51 +142,49 @@ export function ComandaForm() {
         autoComplete="off"
         initialValues={{ items: [{}] }}
       >
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <Form.Item
-            label="Número de Mesa"
-            name="numero_mesa"
-            rules={[
-              { required: true, message: "Por favor ingrese el número de mesa" },
-            ]}
-            style={{ flex: 1, marginBottom: 0 }}
-          >
-            <Select
-              size="large"
-              className="select-numerico"
-              showSearch
-              placeholder="Ej: 12"
-              options={Array.from({ length: 100 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              }))}
-              filterOption={(input, option) =>
-                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
+        <Form.Item
+          label="Número de Mesa"
+          name="numero_mesa"
+          rules={[
+            { required: true, message: "Por favor ingrese el número de mesa" },
+          ]}
+          style={{ marginBottom: "1.5rem" }}
+        >
+          <Select
+            size="large"
+            className="select-numerico"
+            showSearch
+            placeholder="Ej: 12"
+            options={Array.from({ length: 100 }, (_, i) => ({
+              value: i + 1,
+              label: `${i + 1}`,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
 
-          <Form.Item 
-            label="Cantidad de Personas" 
-            name="cantidad_personas"
-            style={{ flex: 1, marginBottom: 0 }}
-          >
-            <Select
-              size="large"
-              className="select-numerico"
-              showSearch
-              placeholder="Ej: 4"
-              disabled={esMesaExistente}
-              options={Array.from({ length: 100 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              }))}
-              filterOption={(input, option) =>
-                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-        </div>
+        <Form.Item 
+          label="Cantidad de Personas" 
+          name="cantidad_personas"
+          style={{ marginBottom: "1.5rem" }}
+        >
+          <Select
+            size="large"
+            className="select-numerico"
+            showSearch
+            placeholder="Ej: 4"
+            disabled={esMesaExistente}
+            options={Array.from({ length: 100 }, (_, i) => ({
+              value: i + 1,
+              label: `${i + 1}`,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
 
         <Form.Item
           label="Mozo"
