@@ -282,15 +282,21 @@ h5.ant-typography,
 }
 
 .filter-strip {
+  position: sticky;
+  top: 0;
+  z-index: 5;
   margin-bottom: 18px;
   display: flex;
-  gap: 12px;
+  gap: 14px;
   flex-wrap: wrap;
   align-items: center;
-  padding: 12px;
+  justify-content: space-between;
+  padding: 12px 14px;
   border: 1px solid #1d2c40;
   border-radius: 8px;
-  background: #0d1a2a;
+  background: rgba(13, 26, 42, 0.96);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(10px);
   width: 100%;
   max-width: 100%;
   overflow: hidden;
@@ -298,6 +304,20 @@ h5.ant-typography,
 
 .filter-strip .ant-select {
   max-width: 100%;
+}
+
+.filter-controls {
+  display: flex;
+  flex: 1 1 420px;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.filter-action-button {
+  flex: 0 0 auto;
+  height: 38px;
+  font-weight: 650;
 }
 
 .historical-mode-panel {
@@ -343,6 +363,51 @@ h5.ant-typography,
 
 .mesa-card.is-paid {
   opacity: 0.82;
+}
+
+.mesa-summary-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 42px;
+  margin-bottom: 2px;
+}
+
+.mesa-waiter {
+  display: -webkit-box;
+  min-width: 0;
+  max-height: 36px;
+  overflow: hidden;
+  color: #f8f9fa !important;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 18px;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.mesa-waiter.is-paid {
+  color: #6b7280 !important;
+}
+
+.mesa-amount {
+  display: flex;
+  justify-content: flex-end;
+  min-width: 72px;
+}
+
+.mesa-total {
+  color: #0f91b6 !important;
+  font-family: var(--font-number);
+  font-size: 16px;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.mesa-total.is-paid {
+  color: #6b7280 !important;
 }
 
 .metric-row {

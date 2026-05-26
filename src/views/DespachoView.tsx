@@ -7,7 +7,7 @@ import { MapaMesas } from "../components/MapaMesas";
 import { ArqueoDrawer } from "../components/ArqueoDrawer";
 import { getOperacionesConItems, guardarCambiosCuenta } from "../services/operacionesService";
 import { actualizarUrlCaja } from "../services/jornadasService";
-import { SettingOutlined, ThunderboltOutlined } from "@ant-design/icons";
+import { SettingOutlined } from "@ant-design/icons";
 
 const { Title } = Typography;
 
@@ -240,12 +240,6 @@ export function DespachoView() {
           </Title>
           <Space wrap className="despacho-actions">
             <Button
-              icon={<ThunderboltOutlined />}
-              onClick={aplicarBonificacionesMasivas}
-            >
-              Bonificaciones Automáticas
-            </Button>
-            <Button
               icon={<SettingOutlined />}
               onClick={handleOpenConfig}
             >
@@ -257,7 +251,7 @@ export function DespachoView() {
           </Space>
         </div>
         <div style={{ flex: 1, overflow: "hidden" }}>
-          <MapaMesas />
+          <MapaMesas onAplicarBonificaciones={aplicarBonificacionesMasivas} />
         </div>
       </Col>
 

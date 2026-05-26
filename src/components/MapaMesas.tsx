@@ -9,11 +9,15 @@ import {
   Empty,
   Select,
 } from "antd";
-import { CheckCircleOutlined, PrinterOutlined } from "@ant-design/icons";
+import { CheckCircleOutlined, PrinterOutlined, ThunderboltOutlined } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import { CuentaModal } from "./CuentaModal";
 
-export function MapaMesas() {
+interface MapaMesasProps {
+  onAplicarBonificaciones: () => void;
+}
+
+export function MapaMesas({ onAplicarBonificaciones }: MapaMesasProps) {
   const operacionesActivas = useAppStore((state) => state.operacionesActivas);
   const mozos = useAppStore((state) => state.mozos);
   const ticketsImpresos = useAppStore((state) => state.ticketsImpresos);
@@ -79,29 +83,38 @@ export function MapaMesas() {
     >
       {/* Panel de Filtros */}
       <div className="filter-strip">
-        <Select
-          allowClear
-          placeholder="Filtrar por Estado"
-          style={{ width: 200 }}
-          value={filtroEstado}
-          onChange={setFiltroEstado}
-          options={[
-            { value: "Abierta", label: "Solo Abiertas" },
-            { value: "Pagada", label: "Solo Pagadas" },
-          ]}
-        />
-        <Select
-          allowClear
-          showSearch
-          placeholder="Filtrar por Mozo"
-          style={{ width: 200 }}
-          value={filtroMozo}
-          onChange={setFiltroMozo}
-          filterOption={(input, option) =>
-            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-          }
-          options={mozos.map((m) => ({ value: m.id, label: m.nombre }))}
-        />
+        <div className="filter-controls">
+          <Select
+            allowClear
+            placeholder="Filtrar por Estado"
+            style={{ width: 200 }}
+            value={filtroEstado}
+            onChange={setFiltroEstado}
+            options={[
+              { value: "Abierta", label: "Solo Abiertas" },
+              { value: "Pagada", label: "Solo Pagadas" },
+            ]}
+          />
+          <Select
+            allowClear
+            showSearch
+            placeholder="Filtrar por Mozo"
+            style={{ width: 200 }}
+            value={filtroMozo}
+            onChange={setFiltroMozo}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+            options={mozos.map((m) => ({ value: m.id, label: m.nombre }))}
+          />
+        </div>
+        <Button
+          className="filter-action-button"
+          icon={<ThunderboltOutlined />}
+          onClick={onAplicarBonificaciones}
+        >
+          Bonificaciones Automáticas
+        </Button>
       </div>
 
       {mesasFiltradas.length === 0 ? (
@@ -166,13 +179,13 @@ export function MapaMesas() {
                 styles={{ body: { padding: "10px 12px 12px" } }}
               >
                 {/* Fila 1: Mozo e Importe */}
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", marginBottom: "0.2rem" }}>
-                  <Typography.Text style={{ fontSize: "14px", fontWeight: 600, color: op.estado === "Pagada" ? "#6b7280" : "#f8f9fa" }}>
+                <div className="mesa-summary-row">
+                  <Typography.Text className={op.estado === "Pagada" ? "mesa-waiter is-paid" : "mesa-waiter"}>
                     {getMozoNombre(op.mozo_id, op.mozo_id_2)}
                   </Typography.Text>
                   
                   {/* Subtotal en Vivo */}
-                  <div>
+                  <div className="mesa-amount">
                     {op.items_operacion && op.items_operacion.length > 0 ? (
                       (() => {
                         const totalVivo = op.items_operacion.reduce((acc: number, item: any) => {
@@ -182,7 +195,7 @@ export function MapaMesas() {
 
                         if (totalVivo > 0) {
                           return (
-                            <Typography.Text style={{ fontSize: "16px", fontWeight: "bold", color: op.estado === "Pagada" ? "#6b7280" : '#0e7490' }}>
+                            <Typography.Text className={op.estado === "Pagada" ? "mesa-total is-paid" : "mesa-total"}>
                               $ {totalVivo.toLocaleString('es-AR')}
                             </Typography.Text>
                           );
