@@ -220,26 +220,11 @@ export function DespachoView() {
   }
 
   return (
-    <Row
-      style={{
-        flex: 1,
-        display: "flex",
-        height: "100%",
-        margin: 0,
-        minHeight: 0,
-      }}
-    >
+    <Row className="despacho-grid">
       {/* Mitad Izquierda: Comandas */}
       <Col
         span={8}
-        style={{
-          height: "100%",
-          padding: "2rem 0 2rem 1.5rem",
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "flex-start",
-          borderRight: "1px solid #1e293b",
-        }}
+        className="comanda-column"
       >
         <ComandaForm />
       </Col>
@@ -247,28 +232,13 @@ export function DespachoView() {
       {/* Mitad Derecha: Mapa de Mesas */}
       <Col
         span={16}
-        style={{
-          height: "100%",
-          display: "flex",
-          flexDirection: "column",
-          padding: "2rem 0 2rem 2rem",
-          backgroundColor: "#0d1421",
-          overflow: "hidden",
-        }}
+        className="mesas-column"
       >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            marginBottom: "1.5rem",
-            flexShrink: 0,
-          }}
-        >
-          <Title level={3} style={{ margin: 0 }}>
+        <div className="despacho-toolbar">
+          <Title level={3} className="view-title">
             Mesas Activas
           </Title>
-          <Space>
+          <Space wrap className="despacho-actions">
             <Button
               icon={<ThunderboltOutlined />}
               onClick={aplicarBonificacionesMasivas}

@@ -102,19 +102,11 @@ export function ComandaForm() {
 
   if (esModoMuseo) {
     return (
-      <div
-        style={{
-          padding: "2rem",
-          textAlign: "center",
-          backgroundColor: "#171f2c",
-          borderRadius: "8px",
-          border: "1px dashed #1e293b",
-        }}
-      >
-        <Typography.Title level={4} style={{ color: "#cbd5e1" }}>
+      <div className="historical-mode-panel">
+        <Typography.Title level={4} className="historical-mode-title">
           Modo Histórico
         </Typography.Title>
-        <Typography.Text style={{ color: "#94a3b8" }}>
+        <Typography.Text className="historical-mode-text">
           Esta jornada está cerrada. No se pueden agregar nuevas comandas.
         </Typography.Text>
       </div>
@@ -123,11 +115,10 @@ export function ComandaForm() {
 
   return (
     <Card
+      className="surface-card"
       style={{
         width: "100%",
         height: "100%",
-        backgroundColor: "transparent",
-        border: "none",
         display: "flex",
         flexDirection: "column",
         overflowX: "hidden",
@@ -135,14 +126,14 @@ export function ComandaForm() {
       styles={{ body: { padding: 0, display: "flex", flexDirection: "column", height: "100%" } }}
     >
       {/* Cabezal fijo */}
-      <div style={{ paddingRight: "1.5rem" }}>
+      <div style={{ padding: "1.5rem 1.5rem 0 1.5rem" }}>
         <Title level={4} style={{ textAlign: "left", marginTop: 0, marginBottom: "1.5rem" }}>
           Nueva Comanda
         </Title>
       </div>
 
       {/* Contenedor del formulario scrolleable */}
-      <div style={{ flex: 1, overflowY: "auto", paddingRight: "1.5rem" }}>
+      <div style={{ flex: 1, overflowY: "auto", padding: "0 1.5rem 1.5rem 1.5rem" }}>
       <Form
         form={form}
         layout="vertical"
@@ -151,51 +142,49 @@ export function ComandaForm() {
         autoComplete="off"
         initialValues={{ items: [{}] }}
       >
-        <div style={{ display: "flex", gap: "1rem", marginBottom: "1.5rem" }}>
-          <Form.Item
-            label="Número de Mesa"
-            name="numero_mesa"
-            rules={[
-              { required: true, message: "Por favor ingrese el número de mesa" },
-            ]}
-            style={{ flex: 1, marginBottom: 0 }}
-          >
-            <Select
-              size="large"
-              className="select-numerico"
-              showSearch
-              placeholder="Ej: 12"
-              options={Array.from({ length: 100 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              }))}
-              filterOption={(input, option) =>
-                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
+        <Form.Item
+          label="Número de Mesa"
+          name="numero_mesa"
+          rules={[
+            { required: true, message: "Por favor ingrese el número de mesa" },
+          ]}
+          style={{ marginBottom: "1.5rem" }}
+        >
+          <Select
+            size="large"
+            className="select-numerico"
+            showSearch
+            placeholder="Ej: 12"
+            options={Array.from({ length: 100 }, (_, i) => ({
+              value: i + 1,
+              label: `${i + 1}`,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
 
-          <Form.Item 
-            label="Cantidad de Personas" 
-            name="cantidad_personas"
-            style={{ flex: 1, marginBottom: 0 }}
-          >
-            <Select
-              size="large"
-              className="select-numerico"
-              showSearch
-              placeholder="Ej: 4"
-              disabled={esMesaExistente}
-              options={Array.from({ length: 100 }, (_, i) => ({
-                value: i + 1,
-                label: `${i + 1}`,
-              }))}
-              filterOption={(input, option) =>
-                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-              }
-            />
-          </Form.Item>
-        </div>
+        <Form.Item 
+          label="Cantidad de Personas" 
+          name="cantidad_personas"
+          style={{ marginBottom: "1.5rem" }}
+        >
+          <Select
+            size="large"
+            className="select-numerico"
+            showSearch
+            placeholder="Ej: 4"
+            disabled={esMesaExistente}
+            options={Array.from({ length: 100 }, (_, i) => ({
+              value: i + 1,
+              label: `${i + 1}`,
+            }))}
+            filterOption={(input, option) =>
+              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+            }
+          />
+        </Form.Item>
 
         <Form.Item
           label="Mozo"
