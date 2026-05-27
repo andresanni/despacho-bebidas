@@ -17,6 +17,14 @@ export async function registrarComanda(
   valoresFormulario: any,
   catalogoBebidas: Bebida[],
 ): Promise<Operacion> {
+  const itemsValidos = (valoresFormulario.items || []).filter(
+    (item: any) => item?.bebida_id && item?.cantidad && item.cantidad > 0,
+  );
+
+  if (itemsValidos.length === 0) {
+    throw new Error("Agrega al menos una bebida a la comanda.");
+  }
+
   // 1. Buscar si la mesa ya existe para esta jornada
   const { data: operacionExistente, error: searchError } = await supabase
     .from("operaciones")
@@ -100,7 +108,7 @@ export async function registrarComanda(
   }
 
   // 3. Mapear los ítems del formulario a la estructura de la tabla items_operacion
-  const itemsMapeados: Partial<ItemOperacion>[] = valoresFormulario.items.map(
+  const itemsMapeados: Partial<ItemOperacion>[] = itemsValidos.map(
     (item: any) => {
       // Buscar la bebida en el catálogo pasado por parámetro
       const bebida = catalogoBebidas.find((b) => b.id === item.bebida_id);

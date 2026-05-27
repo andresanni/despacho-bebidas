@@ -9,7 +9,7 @@ import {
   Card,
   message,
 } from "antd";
-import { PlusOutlined, MinusCircleOutlined } from "@ant-design/icons";
+import { PlusOutlined, MinusCircleOutlined, CloseOutlined } from "@ant-design/icons";
 import { useAppStore } from "../store/useAppStore";
 import {
   registrarComanda,
@@ -50,11 +50,29 @@ export function ComandaForm() {
       return;
     }
 
+    const itemsIngresados = (values.items || []).filter(
+      (item: any) => item?.bebida_id,
+    );
+
+    const itemIncompleto = itemsIngresados.some(
+      (item: any) => !item.cantidad || item.cantidad < 1,
+    );
+
+    if (itemIncompleto) {
+      message.error("Revisa las cantidades de las bebidas seleccionadas.");
+      return;
+    }
+
+    if (itemsIngresados.length === 0) {
+      message.error("Agrega al menos una bebida a la comanda.");
+      return;
+    }
+
     try {
       setEnviando(true);
       await registrarComanda(
         jornadaSeleccionada.id,
-        values,
+        { ...values, items: itemsIngresados },
         bebidas,
       );
 
@@ -140,51 +158,55 @@ export function ComandaForm() {
         onFinish={onFinish}
         onValuesChange={handleValuesChange}
         autoComplete="off"
-        initialValues={{ items: [{}] }}
+        initialValues={{
+          items: [{ cantidad: 1 }, { cantidad: 1 }, { cantidad: 1 }],
+        }}
       >
-        <Form.Item
-          label="Número de Mesa"
-          name="numero_mesa"
-          rules={[
-            { required: true, message: "Por favor ingrese el número de mesa" },
-          ]}
-          style={{ marginBottom: "1.5rem" }}
-        >
-          <Select
-            size="large"
-            className="select-numerico"
-            showSearch
-            placeholder="Ej: 12"
-            options={Array.from({ length: 100 }, (_, i) => ({
-              value: i + 1,
-              label: `${i + 1}`,
-            }))}
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
+        <div className="comanda-numeric-row">
+          <Form.Item
+            label="MESA"
+            name="numero_mesa"
+            rules={[
+              { required: true, message: "Por favor ingrese el número de mesa" },
+            ]}
+            style={{ marginBottom: 0 }}
+          >
+            <Select
+              size="large"
+              className="select-numerico"
+              showSearch
+              placeholder="12"
+              options={Array.from({ length: 100 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+              }))}
+              filterOption={(input, option) =>
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+              }
+            />
+          </Form.Item>
 
-        <Form.Item 
-          label="Cantidad de Personas" 
-          name="cantidad_personas"
-          style={{ marginBottom: "1.5rem" }}
-        >
-          <Select
-            size="large"
-            className="select-numerico"
-            showSearch
-            placeholder="Ej: 4"
-            disabled={esMesaExistente}
-            options={Array.from({ length: 100 }, (_, i) => ({
-              value: i + 1,
-              label: `${i + 1}`,
-            }))}
-            filterOption={(input, option) =>
-              (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
-            }
-          />
-        </Form.Item>
+          <Form.Item 
+            label="PERSONAS" 
+            name="cantidad_personas"
+            style={{ marginBottom: 0 }}
+          >
+            <Select
+              size="large"
+              className="select-numerico"
+              showSearch
+              placeholder="4"
+              disabled={esMesaExistente}
+              options={Array.from({ length: 100 }, (_, i) => ({
+                value: i + 1,
+                label: `${i + 1}`,
+              }))}
+              filterOption={(input, option) =>
+                (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+              }
+            />
+          </Form.Item>
+        </div>
 
         <Form.Item
           label="Mozo"
@@ -212,7 +234,7 @@ export function ComandaForm() {
         </Form.Item>
 
         {!mostrarMozoApoyo && !esMesaExistente ? (
-          <div style={{ textAlign: "right", marginTop: "-1rem", marginBottom: "1.5rem" }}>
+          <div className="support-waiter-link">
             <Button 
               type="link" 
               onClick={() => setMostrarMozoApoyo(true)}
@@ -222,16 +244,17 @@ export function ComandaForm() {
             </Button>
           </div>
         ) : mostrarMozoApoyo ? (
-          <div style={{ display: "flex", alignItems: "flex-end", gap: "8px", marginBottom: "1.5rem" }}>
+          <div className="support-waiter-row">
             <Form.Item
               label="Mozo de Apoyo"
               name="mozo_id_2"
-              style={{ flex: 1, marginBottom: 0 }}
+              className="support-waiter-item"
+              style={{ marginBottom: 0 }}
             >
               <Select
                 allowClear
                 showSearch
-                size="large"
+                size="middle"
                 placeholder="Seleccionar mozo de apoyo"
                 disabled={esMesaExistente}
                 filterOption={(input, option) =>
@@ -252,25 +275,25 @@ export function ComandaForm() {
             <Button
               type="text"
               danger
+              icon={<CloseOutlined />}
               onClick={() => {
                 setMostrarMozoApoyo(false);
                 form.setFieldValue("mozo_id_2", undefined);
               }}
-              style={{ height: "40px" }}
-            >
-              Quitar
-            </Button>
+              title="Quitar mozo de apoyo"
+              className="support-waiter-remove"
+            />
           </div>
         ) : null}
 
-        <Divider>
+        <Divider className="drinks-divider">
           <Text type="secondary">Bebidas</Text>
         </Divider>
 
         <Form.List name="items">
           {(fields, { add, remove }) => (
             <>
-              {fields.map(({ key, name, ...restField }, index) => (
+              {fields.map(({ key, name, ...restField }) => (
                 <div
                   key={key}
                   style={{ display: "flex", width: "100%", gap: "8px", marginBottom: 8, alignItems: "center" }}
@@ -278,7 +301,6 @@ export function ComandaForm() {
                   <Form.Item
                     {...restField}
                     name={[name, "bebida_id"]}
-                    rules={[{ required: true, message: "Seleccione bebida" }]}
                     style={{ flex: 1, minWidth: 0, marginBottom: 0 }}
                   >
                     <Select
@@ -303,7 +325,6 @@ export function ComandaForm() {
                   <Form.Item
                     {...restField}
                     name={[name, "cantidad"]}
-                    rules={[{ required: true, message: "Falta cantidad" }]}
                     initialValue={1}
                     style={{ width: "55px", marginBottom: 0 }}
                   >
@@ -315,7 +336,7 @@ export function ComandaForm() {
                     danger
                     icon={<MinusCircleOutlined />}
                     onClick={() => remove(name)}
-                    disabled={fields.length === 1 && index === 0}
+                    disabled={fields.length <= 3}
                     style={{ padding: "0 4px", minWidth: 0 }}
                   />
                 </div>

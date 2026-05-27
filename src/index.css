@@ -712,9 +712,74 @@ h5.ant-typography,
   background: #0d1a2a;
 }
 
+.comanda-numeric-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.comanda-numeric-row .ant-form-item-label {
+  padding-bottom: 6px;
+}
+
+.comanda-numeric-row .ant-form-item-label > label {
+  color: #9fb0c5;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
+.comanda-numeric-row .ant-select-selector {
+  justify-content: center;
+}
+
+.support-waiter-link {
+  text-align: right;
+  margin-top: -12px;
+  margin-bottom: 10px;
+}
+
+.support-waiter-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  margin-bottom: 12px;
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.support-waiter-item {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.support-waiter-item .ant-form-item-label {
+  padding-bottom: 6px;
+}
+
+.support-waiter-item .ant-form-item-label > label {
+  color: #9fb0c5;
+  font-size: 13px;
+}
+
+.support-waiter-remove {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  margin-bottom: 0;
+  border: 1px solid #2a3d55;
+  border-radius: 8px;
+}
+
+.drinks-divider {
+  margin: 10px 0 14px !important;
+}
+
 .select-numerico .ant-select-selector {
   height: 50px !important;
-  font-size: 1.5rem !important;
+  font-size: 1.35rem !important;
+  font-weight: 750;
   display: flex !important;
   align-items: center !important;
 }
